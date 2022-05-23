@@ -1,8 +1,9 @@
 const modules = require('../core');
 
 //제네시스 블럭
-const Coin        = new modules.Blockchain;
-const transaction = new modules.transaction;
+const Coin          = new modules.Blockchain;
+const transaction   = new modules.transaction;
+const wallet        = new modules.wallet;
 
 console.log("제네시스 블럭1");
 console.log("제네시스 블럭2");
@@ -26,8 +27,12 @@ const TransactionDATA = {
 }
 transaction.InOut(TransactionDATA);
 transaction.InOut(TransactionDATA);
+
 console.log(transaction.confirm());
 
+////테스트 코드
+
+console.log(wallet);
 
 ////테스트 코드
 const Transaction = {

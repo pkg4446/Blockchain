@@ -8,7 +8,7 @@ function Transaction(){
 
 Transaction.prototype.InOut = function(DATA){
     const newTransaction = {
-        time:       new Date(),
+        time:       new Date().toString(),
         addressIn:  DATA.addressIn,
         addressOut: DATA.addressOut,
         amount:     DATA.amount,
@@ -18,7 +18,15 @@ Transaction.prototype.InOut = function(DATA){
         nonce:  JSON.stringify(newTransaction)
     }
     newTransaction.signature = this.hashBlock(wallet)
-    this.history.push(newTransaction);
+    if(this.history[this.history.length-1]){
+        if(this.history[this.history.length-1].signature !== newTransaction.signature){
+            this.history.push(newTransaction);
+        }else{
+            //console.log("1초에 한번만 거래 가능");
+        }
+    }else{
+        this.history.push(newTransaction);
+    }
 }
 
 Transaction.prototype.hashBlock = function(DATA){
