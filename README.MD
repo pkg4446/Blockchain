@@ -1,0 +1,1 @@
+Naivecoin , http://lhartikk.github.io/
