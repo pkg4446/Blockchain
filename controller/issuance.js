@@ -1,4 +1,4 @@
-const bank  = require('./bank');
+const {bank}  = require('../core');
 
 console.log("Blockchain work on");
 
@@ -16,7 +16,7 @@ bank.remittance(TransactionDATA);
 
 bank.newBlock();
 
-bank.lookUp();
+//bank.lookUp();
 bank.Balance("bank");
 bank.Balance("mintCorp");
 bank.Balance("trans");

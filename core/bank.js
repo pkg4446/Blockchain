@@ -1,7 +1,9 @@
-const modules = require('../core');
+const   Blockchain  = require('./blockchain');
+const   Transaction = require('./transaction');
+const   Encryption  = require('./encryption');
 
-const Coin          = new modules.Blockchain;
-const transaction   = new modules.transaction;
+const   Coin        = new Blockchain();
+const   transaction = new Transaction();
 
 console.log("Blockchain work on");
 
@@ -19,11 +21,11 @@ module.exports = {
         }        
         //새로운 트랜잭션 생성
          //새로운 트랜잭션 생성
-         const balance = BalanceCheck(modules.encryption.getPublic(wallet.privateKey));
+         const balance = BalanceCheck(Encryption.getPublic(wallet.privateKey));
          if(balance>=wallet.amount){
             transaction.txInOut(TransactionDATA);
         }else{
-            console.log(modules.encryption.getPublic(wallet.privateKey),"has not enough coins");
+            console.log(Encryption.getPublic(wallet.privateKey),"has not enough coins");
         }          
     },
     newBlock:   function(){
@@ -35,9 +37,6 @@ module.exports = {
         newBlock.hash           = Coin.getLastBlock().hash;
         //pow 작업
         newBlock.nonce          = Coin.proofOfWork(newBlock);
-
-        //console.log("inspection_hash",newBlock);
-
         newBlock.hash           = Coin.hashBlock(newBlock);    
         newBlock.previousHash   = Coin.getLastBlock().hash;
 

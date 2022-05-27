@@ -1,13 +1,11 @@
-const   sha256 = require('sha256');
-const   record = require('./record');
-
-const   fileStream = new record;
+const   record      = require('./record');
+const   Encryption  = require('./encryption');
 
 //블록체인 데이터 구조.
 function Blockchain(){
     this.block              = [];
     this.pendingTransaction = [];    
-    this.block              = eval("["+fileStream.getBlock()+"]");
+    this.block              = eval("["+record.getBlock()+"]");
     this.createGenesisBlock();
 }
 
@@ -23,12 +21,12 @@ Blockchain.prototype.createGenesisBlock = function(){
             transactions:       []
         };        
         genesisBlock.hash = this.hashBlock(genesisBlock);
-        fileStream.addBlock(genesisBlock);
+        record.addBlock(genesisBlock);
         genesisBlock.index++;        
         genesisBlock.previousHash = genesisBlock.hash;
         genesisBlock.hash = this.hashBlock(genesisBlock);
         this.block.push(genesisBlock);
-        fileStream.addBlock(genesisBlock);
+        record.addBlock(genesisBlock);
     }
 }
 
@@ -47,7 +45,7 @@ Blockchain.prototype.createNewBlock = function(DATA){
     this.pendingTransaction = [];
     if(this.isValidNewBlock()){
         this.block.push(newBlock);
-        fileStream.addBlock(newBlock);
+        record.addBlock(newBlock);
         return newBlock;
     }
 }
@@ -68,34 +66,41 @@ Blockchain.prototype.createNewTransaction = function(DATA){
 
 //해쉬 값 리턴 함수
 Blockchain.prototype.hashBlock = function(DATA){
-    return sha256(JSON.stringify(DATA));
+    return Encryption.hashBlock(DATA);
 }
 
+//난이도 조절용 객체, 난이도 조절에 사용할 블럭 갯수 단위, 평균 블럭 생성 속도, 블럭생성 난이도
 const  Generation = {
     adjustmentBlock:    10,
     interval:           100,
-    level:              3
+    level:              1
 }
 //pow 작업 함수 - 이전블록의 해쉬, 현재 블록 데이터와 nonce 값을 사용한다.
 Blockchain.prototype.proofOfWork = function(DATA){
     DATA.nonce   = 0;
     let hash    = this.hashBlock(DATA);
     let check   = "";
-    Generation.level = 3; //그냥 발행 할 경우 난이도 level = 1
+
+    //그냥 발행 할 경우 난이도 level = 1
+    Generation.level = 1; 
     
     for(let strCheck = 0; strCheck < Generation.level; strCheck++){check += "0"}
     while(hash.substring(0,Generation.level) != check){
         DATA.nonce++;
         hash = this.hashBlock(DATA)
     } 
-        
-    difficult(this)
+    console.log("Generation.level",Generation.level);
+    
+    //난이도 조절 함수
+    difficult(this);
     return DATA.nonce;
 }
-function difficult(block){   
-    if(block.getLastBlock().index % Generation.adjustmentBlock == 0 && block.length > 1){           
-        const blockInterver =   block.getLastBlock().timestamp - 
-                                block.block[block.getLastBlock().index-Generation.adjustmentBlock].timestamp;
+
+//난이도 조절 함수
+function difficult(blockChain){       
+    if(blockChain.getLastBlock().index % Generation.adjustmentBlock == 0 && blockChain.block.length > 1){           
+        const blockInterver =   blockChain.getLastBlock().timestamp - 
+                                blockChain.block[blockChain.getLastBlock().index-Generation.adjustmentBlock].timestamp;
         if(blockInterver/Generation.adjustmentBlock < Generation.interval/2){
             Generation.level++;
         }else if(blockInterver/Generation.adjustmentBlock > Generation.interval*2){
@@ -123,7 +128,6 @@ Blockchain.prototype.isValidNewBlock = function(){
         }    
         
     //console.log("inspection",inspection);
-
         if (previousBlock.index + 1 !== newBlock.index) {
             console.log('invalid index', previousBlock.index, newBlock.index);
             return false;
