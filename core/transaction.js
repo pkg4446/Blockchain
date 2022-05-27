@@ -1,41 +1,30 @@
-const   sha256      = require('sha256');
+const   encryption  = require('./encryption');
 
 //트랜젝션(거래) 함수
 function Transaction(){
-    this.ID      = "";
-    this.history = [];
+    this.HISTORY    = [];
 }
 
-Transaction.prototype.InOut = function(DATA){
-    const newTransaction = {
+Transaction.prototype.txInOut = function(DATA){
+    const transaction = {        
+        id:         "",
         time:       new Date().toString(),
+        addressOut: encryption.getPublic(DATA.addressOut),
         addressIn:  DATA.addressIn,
-        addressOut: DATA.addressOut,
-        amount:     DATA.amount,
+        amount:     DATA.amount,        
+        signature:  DATA.signature,
     }
-    const wallet = {
-        outID:  DATA.outID,
-        nonce:  JSON.stringify(newTransaction)
-    }
-    newTransaction.signature = this.hashBlock(wallet)
-    if(this.history[this.history.length-1]){
-        if(this.history[this.history.length-1].signature !== newTransaction.signature){
-            this.history.push(newTransaction);
-        }else{
-            //console.log("1초에 한번만 거래 가능");
-        }
-    }else{
-        this.history.push(newTransaction);
-    }
+    transaction.signature = this.signTransactionIn(DATA.addressOut);
+    transaction.id = encryption.transactionID(this.HISTORY);
+    console.log(transaction)
+    this.HISTORY.push(transaction);
+    return this.HISTORY;
 }
 
-Transaction.prototype.hashBlock = function(DATA){
-    return sha256(JSON.stringify(DATA));
-}
-
-Transaction.prototype.confirm = function(){
-    this.ID = this.hashBlock(this.history)
-    return this;
+Transaction.prototype.signTransactionIn = function(privateKey){
+    const Sign      = encryption.transactionID(this.HISTORY);
+    const signature = encryption.signature(Sign, privateKey);
+    return signature;
 }
 
 module.exports = Transaction;

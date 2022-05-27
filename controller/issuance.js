@@ -19,20 +19,17 @@ if(!Coin.getLastBlock()){
 const blockData = Coin.getLastBlock()
 
 ////테스트 코드
-const TransactionDATA = {
-    addressIn:  "In주소",
-    addressOut: "Out주소",
-    amount:     1,
-    outID:      "recipient",
-}
-transaction.InOut(TransactionDATA);
-transaction.InOut(TransactionDATA);
-
-console.log(transaction.confirm());
+console.log(wallet);
 
 ////테스트 코드
-
-console.log(wallet);
+const TransactionDATA = {
+    addressOut: wallet.privateKey,
+    addressIn:  wallet.publicKey,
+    amount:      1,
+}
+transaction.txInOut(TransactionDATA);
+transaction.txInOut(TransactionDATA);
+transaction.txInOut(TransactionDATA);
 
 ////테스트 코드
 const Transaction = {
@@ -41,13 +38,7 @@ const Transaction = {
     recipient:  "recipient",
 }
 //새로은 트랜잭션 생성1 - (총금액, 보내는이, 받는이)
-Coin.createNewTransaction(Transaction);
-//새로은 트랜잭션 생성2 - (총금액, 보내는이, 받는이)
-Coin.createNewTransaction(Transaction);
-//새로은 트랜잭션 생성3 - (총금액, 보내는이, 받는이)
-Coin.createNewTransaction(Transaction);
-//새로은 트랜잭션 생성4. - (총금액, 보내는이, 받는이)
-Coin.createNewTransaction(Transaction);
+Coin.createNewTransaction(transaction.HISTORY);
 
 //새로운 블럭 만들기
 for(let count = 0; count <= 2; count++){
@@ -74,9 +65,18 @@ console.log("view");
 console.log("view");
 //for(let chain of Coin.block) {console.log("Block",chain);}
 
+let AllTransactions = [];
 
+for(let chain of Coin.block) {
+    for(let tx of chain.transactions) {
+        AllTransactions.push(tx);
+    }
+}
 
+const walletIn  = AllTransactions.filter((TRANSACT) => TRANSACT.addressIn === wallet.publicKey).map((TRANSACT) => TRANSACT.amount).reduce((a, b) => a + b, 0);
+const walletOut = AllTransactions.filter((TRANSACT) => TRANSACT.addressOut === wallet.publicKey).map((TRANSACT) => TRANSACT.amount).reduce((a, b) => a + b, 0);
 
+console.log("transactions",walletIn - walletOut);
 
 
 

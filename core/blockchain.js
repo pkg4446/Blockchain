@@ -52,18 +52,10 @@ Blockchain.prototype.getLastBlock = function(){
 //새로운 트랜젝션(거래)가 발생했을 때 작동되는 함수
 //인자값으로, 총액수, 보내는사람, 받는사람이 들어간다.
 Blockchain.prototype.createNewTransaction = function(DATA){
-    const newTransaction = {
-        amount:     DATA.amount,
-        sender:     DATA.sender,
-        recipient:  DATA.recipient,
-        time:       new Date()
-    }
-
     //맨위 트랜잭션 배열에 값을 넣어준다.
-    this.pendingTransaction.push(newTransaction);
-
+    this.pendingTransaction = DATA;
     //마지막 블록의 index 에서 + 1
-    return this.getLastBlock()['index'] + 1
+    return this.pendingTransaction;
 }
 
 //해쉬 값 리턴 함수

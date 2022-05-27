@@ -1,12 +1,12 @@
-const   sha256  = require('sha256');
 const   fs      = require('fs');
+const   encryption      = require('./encryption')
 
 const privateKeyLocation    = 'core/wallet/';
 const privateKeyFile        = 'privateKey';
 
 function Wallet(){
     this.privateKey = this.getPrivate();
-    this.publicKey  = this.getPublic();
+    this.publicKey  = encryption.getPublic(this.privateKey);
 }
 
 Wallet.prototype.getPrivate = function(){
@@ -26,26 +26,14 @@ Wallet.prototype.getPrivate = function(){
     }    
 }
 
-Wallet.prototype.getPublic  = function(){
-    const privateKey    = this.getPrivate();
-    const key           = sha256(privateKey);
-    return key;
-}
-
-Wallet.prototype.generatePrivateKey = function(){
-    const privateKey    = sha256((Date.now()+Date.now()*Math.random()).toString());
-    return privateKey;
-}
-
 Wallet.prototype.initWallet = function(){    
     if (fs.existsSync(privateKeyLocation+privateKeyFile)) {
         return;
     }
-    const newPrivateKey = this.generatePrivateKey();
+    const newPrivateKey = ec.generatePrivateKey();
     fs.writeFileSync(privateKeyLocation+privateKeyFile, newPrivateKey);
     this.privateKey = newPrivateKey;
     console.log('new wallet with private key created');
 }
-
 
 module.exports = Wallet;
