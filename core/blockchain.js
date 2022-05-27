@@ -1,47 +1,55 @@
 const   sha256 = require('sha256');
+const   record = require('./record');
+
+const   fileStream = new record;
 
 //블록체인 데이터 구조.
 function Blockchain(){
     this.block              = [];
     this.pendingTransaction = [];    
+    this.block              = eval("["+fileStream.getBlock()+"]");
+    this.createGenesisBlock();
 }
 
 //제네시스 블럭
 Blockchain.prototype.createGenesisBlock = function(){
-    const genesisBlock = {
-        index:              0,
-        timestamp:          Date.now(),        
-        nonce:              0,
-        previousHash:       "SmartHive",
-        hash:               "SmartHive",
-        transactions:       []
-    };
-    const hash = this.hashBlock(genesisBlock);
-    const block = {
-        nonce:          100,
-        previousHash:   genesisBlock.hash,
-        hash:           genesisBlock.hash
+    if(!this.getLastBlock()){ 
+        const genesisBlock = {
+            index:              0,
+            timestamp:          Date.now(),        
+            nonce:              100,
+            previousHash:       "SmartHive",
+            hash:               "SmartHive",
+            transactions:       []
+        };        
+        genesisBlock.hash = this.hashBlock(genesisBlock);
+        fileStream.addBlock(genesisBlock);
+        genesisBlock.index++;        
+        genesisBlock.previousHash = genesisBlock.hash;
+        genesisBlock.hash = this.hashBlock(genesisBlock);
+        this.block.push(genesisBlock);
+        fileStream.addBlock(genesisBlock);
     }
-    this.createNewBlock(block);
 }
 
 //블록체인 프로토 타입 함수 정의
 Blockchain.prototype.createNewBlock = function(DATA){
     //새 블록 객체
     const newBlock = {
-        index:              this.block.length + 1,
+        index:              this.block.length,
         timestamp:          Date.now(),        
         nonce:              DATA.nonce,
         previousHash:       DATA.previousHash,
         hash:               DATA.hash,
         transactions:       this.pendingTransaction
     };
-
     //다음 거래를 위한 거래내역 배열 비워주고 새로운 블록을 block 배열에 추가 
     this.pendingTransaction = [];
-    this.block.push(newBlock);
-
-    return newBlock;
+    if(this.isValidNewBlock()){
+        this.block.push(newBlock);
+        fileStream.addBlock(newBlock);
+        return newBlock;
+    }
 }
 
 //마지막 블록 얻기
@@ -85,7 +93,7 @@ Blockchain.prototype.proofOfWork = function(DATA){
     return DATA.nonce;
 }
 function difficult(block){   
-    if(block.getLastBlock().index % Generation.adjustmentBlock == 0){           
+    if(block.getLastBlock().index % Generation.adjustmentBlock == 0 && block.length > 1){           
         const blockInterver =   block.getLastBlock().timestamp - 
                                 block.block[block.getLastBlock().index-Generation.adjustmentBlock].timestamp;
         if(blockInterver/Generation.adjustmentBlock < Generation.interval/2){
@@ -102,48 +110,32 @@ function difficult(block){
 
 //무결성 검증
 Blockchain.prototype.isValidNewBlock = function(){
-    const newBlock      = this.block[this.getLastBlock()['index']-1];
-    const previousBlock = this.block[this.getLastBlock()['index']-2];
-    const inspection    = {
-        index:          previousBlock.index,
-        timestamp:      previousBlock.timestamp,
-        nonce:          newBlock.nonce,
-        previousHash:   previousBlock.previousHash,
-        hash:           newBlock.previousHash,
-        transactions:   newBlock.transactions
-      }    
-      
-   //console.log("inspection",inspection);
+    if(this.getLastBlock()>1){
+        const newBlock      = this.block[this.getLastBlock()['index']-1];
+        const previousBlock = this.block[this.getLastBlock()['index']-2];
+        const inspection    = {
+            index:          previousBlock.index,
+            timestamp:      previousBlock.timestamp,
+            nonce:          newBlock.nonce,
+            previousHash:   previousBlock.previousHash,
+            hash:           newBlock.previousHash,
+            transactions:   newBlock.transactions
+        }    
+        
+    //console.log("inspection",inspection);
 
-    if (previousBlock.index + 1 !== newBlock.index) {
-        console.log('invalid index', previousBlock.index, newBlock.index);
-        return false;
-    } else if (previousBlock.hash !== newBlock.previousHash) {
-        console.log('invalid previoushash', previousBlock.hash, newBlock.previousHash);
-        return false;
-    } else if (this.hashBlock(inspection) !== newBlock.hash && inspection.index !== 1 ) {
-        console.log('invalid previoushash', this.hashBlock(inspection), newBlock.hash);
-        return false;
-    }
-    return true;
-};
-
-Blockchain.prototype.isValidChain = function() {
-    const isValidGenesis = function(block){
-        return JSON.stringify(block) === JSON.stringify(genesisBlock);
-    };
-
-    if (!isValidGenesis(blockchainToValidate[0])) {
-        return false;
-    }
-
-    for (let i = 1; i < blockchainToValidate.length; i++) {
-        if (!isValidNewBlock(blockchainToValidate[i], blockchainToValidate[i - 1])) {
+        if (previousBlock.index + 1 !== newBlock.index) {
+            console.log('invalid index', previousBlock.index, newBlock.index);
+            return false;
+        } else if (previousBlock.hash !== newBlock.previousHash) {
+            console.log('invalid previoushash', previousBlock.hash, newBlock.previousHash);
+            return false;
+        } else if (this.hashBlock(inspection) !== newBlock.hash && inspection.index !== 1 ) {
+            console.log('invalid previoushash', this.hashBlock(inspection), newBlock.hash);
             return false;
         }
     }
     return true;
 };
-
 //Blockchain 모듈화
 module.exports = Blockchain;

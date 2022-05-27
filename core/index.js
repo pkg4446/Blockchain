@@ -1,10 +1,13 @@
 const Blockchain    = require('./blockchain');
+const encryption    = require('./encryption');
 const transaction   = require('./transaction');
-const wallet        = require('./wallet');
 const modules       = {};
 
 modules.Blockchain  = Blockchain;
+modules.encryption  = encryption;
 modules.transaction = transaction;
-modules.wallet      = wallet;
+
+const wallet        = require('./wallet');
+const walletMake    = new wallet()
 
 module.exports      = modules;

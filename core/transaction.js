@@ -1,5 +1,7 @@
 const   encryption  = require('./encryption');
 
+const   mintCorp    = "mintCorp"
+const   bank        = "bank"
 //트랜젝션(거래) 함수
 function Transaction(){
     this.HISTORY    = [];
@@ -12,14 +14,43 @@ Transaction.prototype.txInOut = function(DATA){
         addressOut: encryption.getPublic(DATA.addressOut),
         addressIn:  DATA.addressIn,
         amount:     DATA.amount,        
-        signature:  DATA.signature,
+        signature:  "",
     }
     transaction.signature = this.signTransactionIn(DATA.addressOut);
     transaction.id = encryption.transactionID(this.HISTORY);
-    console.log(transaction)
     this.HISTORY.push(transaction);
     return this.HISTORY;
 }
+
+Transaction.prototype.issuance = function(cost){
+    const transaction = {        
+        id:         "",
+        time:       new Date().toString(),
+        addressOut: mintCorp,
+        addressIn:  bank,
+        amount:     cost,        
+        signature:  "",
+    }
+    transaction.signature = this.signTransactionIn(transaction.addressOut);
+    transaction.id = encryption.transactionID(this.HISTORY);
+    this.HISTORY.push(transaction);
+    return this.HISTORY;
+}
+
+Transaction.prototype.retirement = function(cost){
+    const transaction = {        
+        id:         "",
+        time:       new Date().toString(),
+        addressOut: bank,
+        addressIn:  mintCorp,
+        amount:     cost,        
+        signature:  "",
+    }
+    transaction.signature = this.signTransactionIn(transaction.addressOut);
+    transaction.id = encryption.transactionID(this.HISTORY);
+    this.HISTORY.push(transaction);
+    return this.HISTORY;
+} 
 
 Transaction.prototype.signTransactionIn = function(privateKey){
     const Sign      = encryption.transactionID(this.HISTORY);
