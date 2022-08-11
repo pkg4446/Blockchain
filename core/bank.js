@@ -11,7 +11,30 @@ console.log("Blockchain work on");
 //console.log(wallet);
 module.exports = {
     minting:    function(cost){if(cost)transaction.issuance(cost);},
-    burn:       function(cost){if(cost)transaction.retirement(cost);},
+    burn:       function(cost){
+        if(cost){        
+            const balance = BalanceCheck(transaction.bank());
+            if(balance>=cost){
+                transaction.retirement(cost);
+            }else{
+                console.log(transaction.bank(),"has not enough coins");
+            }
+            
+        }
+    },
+    airDrop:   function(wallet){                
+        const TransactionDATA = {
+            addressIn:  wallet.publicKey,
+            amount:     wallet.amount,
+        }
+        const balance = BalanceCheck(transaction.bank());
+        if(balance>=cost){
+            transaction.distribution(wallet);
+        }else{
+            console.log(transaction.bank(),"has not enough coins");
+        }
+        
+    },
     Balance:    function(publicKey){BalanceCheck(publicKey);},
     remittance: function(wallet){
         const TransactionDATA = {
@@ -21,8 +44,8 @@ module.exports = {
         }
         //새로운 트랜잭션 생성
          //새로운 트랜잭션 생성
-         const balance = BalanceCheck(Encryption.getPublic(wallet.privateKey));
-         if(balance>=wallet.amount){
+        const balance = BalanceCheck(Encryption.getPublic(wallet.privateKey));
+        if(balance>=wallet.amount){
             transaction.txInOut(TransactionDATA);
         }else{
             console.log(Encryption.getPublic(wallet.privateKey),"has not enough coins");

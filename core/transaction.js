@@ -1,10 +1,14 @@
 const   encryption  = require('./encryption');
 
 const   mintCorp    = "mintCorp"
-const   bank        = "SmarthiveMainBank"
+const   bank        = "Bank"
 //트랜젝션(거래) 함수
 function Transaction(){
     this.HISTORY    = [];
+}
+
+Transaction.prototype.bank = function(){
+    return bank;
 }
 
 Transaction.prototype.txInOut = function(DATA){
@@ -27,7 +31,7 @@ Transaction.prototype.issuance = function(cost){
         id:         "",
         time:       new Date().toString(),
         addressOut: mintCorp,
-        addressIn:  encryption.getPublic(bank),
+        addressIn:  bank,
         amount:     cost,        
         signature:  "",
     }
@@ -44,6 +48,21 @@ Transaction.prototype.retirement = function(cost){
         addressOut: bank,
         addressIn:  mintCorp,
         amount:     cost,        
+        signature:  "",
+    }
+    transaction.signature = this.signTransactionIn(transaction.addressOut);
+    transaction.id = encryption.transactionID(this.HISTORY);
+    this.HISTORY.push(transaction);
+    return this.HISTORY;
+} 
+
+Transaction.prototype.distribution = function(DATA){
+    const transaction = {        
+        id:         "",
+        time:       new Date().toString(),
+        addressOut: bank,
+        addressIn:  DATA.addressIn,
+        amount:     DATA.amount,       
         signature:  "",
     }
     transaction.signature = this.signTransactionIn(transaction.addressOut);
