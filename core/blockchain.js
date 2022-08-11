@@ -33,8 +33,9 @@ Blockchain.prototype.createGenesisBlock = function(){
 //블록체인 프로토 타입 함수 정의
 Blockchain.prototype.createNewBlock = function(DATA){
     //새 블록 객체
+    console.log();
     const newBlock = {
-        index:              this.block.length,
+        index:              this.block[this.block.length-1].index+1,
         timestamp:          Date.now(),        
         nonce:              DATA.nonce,
         previousHash:       DATA.previousHash,
@@ -45,14 +46,20 @@ Blockchain.prototype.createNewBlock = function(DATA){
     this.pendingTransaction = [];
     if(this.isValidNewBlock()){
         this.block.push(newBlock);
-        record.addBlock(newBlock);
+        if(this.block.length>5){
+            this.block = record.newFile(newBlock);
+            this.block.length=1;
+        }else{
+            record.addBlock(newBlock);
+        }        
         return newBlock;
     }
 }
 
 //마지막 블록 얻기
 Blockchain.prototype.getLastBlock = function(){
-    return this.block[this.block.length - 1];   
+    const lastBlock = this.block[this.block.length - 1];   
+    return lastBlock;
 }
 
 //새로운 트랜젝션(거래)가 발생했을 때 작동되는 함수

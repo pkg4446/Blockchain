@@ -1,7 +1,7 @@
 const   encryption  = require('./encryption');
 
 const   mintCorp    = "mintCorp"
-const   bank        = "bank"
+const   bank        = "SmarthiveMainBank"
 //트랜젝션(거래) 함수
 function Transaction(){
     this.HISTORY    = [];
@@ -27,7 +27,7 @@ Transaction.prototype.issuance = function(cost){
         id:         "",
         time:       new Date().toString(),
         addressOut: mintCorp,
-        addressIn:  bank,
+        addressIn:  encryption.getPublic(bank),
         amount:     cost,        
         signature:  "",
     }

@@ -1,7 +1,7 @@
 const   fs          = require('fs');
 const   encryption  = require('./encryption')
 
-const privateKeyLocation    = 'core/wallet/';
+const privateKeyLocation    = 'data/wallet/';
 const privateKeyFile        = 'privateKey';
 
 function Wallet(){
@@ -34,6 +34,15 @@ Wallet.prototype.initWallet = function(){
     fs.writeFileSync(privateKeyLocation+privateKeyFile, newPrivateKey);
     this.privateKey = newPrivateKey;
     console.log('new wallet with private key created');
+}
+
+Wallet.prototype.makeWallet = function(){    
+    if (fs.existsSync(privateKeyLocation+privateKeyFile)) {
+        return;
+    }
+    const newPrivateKey = encryption.generatePrivateKey();
+    console.log('new wallet with private key created',newPrivateKey);
+    return newPrivateKey;
 }
 
 module.exports = Wallet;
