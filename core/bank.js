@@ -11,7 +11,7 @@ module.exports = {
     minting:    function(cost){if(cost)transaction.issuance(cost);},
     burn:       function(cost){
         if(cost){        
-            const balance = BalanceCheck(transaction.bank());
+            const balance = BalanceCheck(transaction.bank(),true);
             if(balance>=cost){
                 transaction.retirement(cost);
             }else{
@@ -21,7 +21,7 @@ module.exports = {
         }
     },
     airDrop:    async function(wallet){                
-        const balance = await BalanceCheck(transaction.bank());
+        const balance = await BalanceCheck(transaction.bank(),true);
         if(balance>=wallet.amount){
             transaction.distribution(wallet);
             return wallet.publicKey+` get ${wallet.amount} coin.`
@@ -29,7 +29,7 @@ module.exports = {
             return transaction.bank()+" has not enough coin.";
         }
     },
-    Balance:    async function(publicKey){await BalanceCheck(publicKey);},
+    Balance:    async function(publicKey){await BalanceCheck(publicKey,false);},
     remittance: function(wallet){
         const TransactionDATA = {
             addressOut: wallet.privateKey,
@@ -38,7 +38,7 @@ module.exports = {
         }
         //새로운 트랜잭션 생성
          //새로운 트랜잭션 생성
-        const balance = BalanceCheck(Encryption.getPublic(wallet.privateKey));
+        const balance = BalanceCheck(Encryption.getPublic(wallet.privateKey),true);
         if(balance>=wallet.amount){
             transaction.txInOut(TransactionDATA);
         }else{
@@ -61,7 +61,7 @@ module.exports = {
     }, 
 }
 
-async function  BalanceCheck(publicKey){
+async function  BalanceCheck(publicKey,confirm){
     const   fs  = require('fs');
     const   blockLocation = 'data/block/';
     const   dir = fs.readdirSync(blockLocation);
@@ -77,8 +77,10 @@ async function  BalanceCheck(publicKey){
             }
         }
     }    
-    walletIn   += transaction.HISTORY.filter((TRANSACT) => TRANSACT.addressIn  === publicKey).map((TRANSACT) => TRANSACT.amount).reduce((a, b) => parseInt(a) + parseInt(b), 0);
-    walletOut  += transaction.HISTORY.filter((TRANSACT) => TRANSACT.addressOut === publicKey).map((TRANSACT) => TRANSACT.amount).reduce((a, b) => parseInt(a) + parseInt(b), 0);
+    if(confirm){
+        walletIn   += transaction.HISTORY.filter((TRANSACT) => TRANSACT.addressIn  === publicKey).map((TRANSACT) => TRANSACT.amount).reduce((a, b) => parseInt(a) + parseInt(b), 0);
+        walletOut  += transaction.HISTORY.filter((TRANSACT) => TRANSACT.addressOut === publicKey).map((TRANSACT) => TRANSACT.amount).reduce((a, b) => parseInt(a) + parseInt(b), 0);
+    }
     console.log("Balance","in:",walletIn,"out:",walletOut,"total:",walletIn - walletOut);
     return walletIn - walletOut;
 }

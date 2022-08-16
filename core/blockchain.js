@@ -44,8 +44,6 @@ Blockchain.prototype.createNewBlock = function(DATA){
     };
     //다음 거래를 위한 거래내역 배열 비워주고 새로운 블록을 block 배열에 추가 
     this.pendingTransaction = [];
-    console.log('new newBlock', newBlock);
-    console.log('new pendingTransaction', this.pendingTransaction);
     if(this.isValidNewBlock()){
         this.block.push(newBlock);
         if(this.block.length>bolckSave){
