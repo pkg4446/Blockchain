@@ -7,6 +7,11 @@ const app   = http.createServer(function(request,response){
         return response.writeHead(404);   
     }
     if(request.url == '/'){
+        response.writeHead(200);
+        response.write("JSON.stringify(res)");
+        response.end();
+    }
+    if(request.url == '/api'){
         let body = '';
         request.on('data', function(data){
             body += data;
@@ -16,7 +21,7 @@ const app   = http.createServer(function(request,response){
             let post = JSON.parse(body);
             POST(response,post);
         });
-    }     
+    }
 });
 app.listen(3001);
 
@@ -32,7 +37,7 @@ async function POST(response,data){
     }
     const res = {
         result : true,
-        text   : '',
+        data   : null,
     };
     switch (TYPE) {
         case 'minting':
@@ -44,13 +49,16 @@ async function POST(response,data){
         case 'transaction':            
             bank.remittance(TransactionDATA);
             break;
-        case 'wallet':
-            bank.Balance(WALLET);
+        case 'wallet':            
+            res.data = await bank.Balance(WALLET);
             break;
         case 'airDrop':            
             const walletMake    = new wallet()
             if(KEY == walletMake.getPrivate())
-                res.text = await bank.airDrop(WALLET,AMOUNT);
+                res.data = await bank.airDrop(WALLET,AMOUNT);
+            break;
+        case 'createNewBlock':            
+            bank.newBlock(); 
             break;
         default:
             break;

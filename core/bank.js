@@ -12,7 +12,8 @@ module.exports = {
     burn:       function(cost){
         if(cost){        
             const balance = BalanceCheck(transaction.bank(),true);
-            if(balance>=cost){
+            console.log("Bank","in:",balance.In,"out:",balance.OUT,"total:",balance.Balance);
+            if(balance.Balance>=cost){
                 transaction.retirement(cost);
             }else{
                 console.log(transaction.bank(),"has not enough coin.");
@@ -22,7 +23,8 @@ module.exports = {
     },
     airDrop:    async function(wallet,coin){                
         const balance = await BalanceCheck(transaction.bank(),true);
-        if(balance>=coin){
+        console.log("Bank","in:",balance.In,"out:",balance.Out,"total:",balance.Balance);
+        if(balance.Balance>=coin){
             const data = {
                 publicKey:  wallet,
                 amount:     coin
@@ -33,7 +35,10 @@ module.exports = {
             return transaction.bank()+" has not enough coin.";
         }
     },
-    Balance:    async function(publicKey){await BalanceCheck(publicKey,false);},
+    Balance:    async function(publicKey){
+        const balance = await BalanceCheck(publicKey,false);
+        return balance;
+    },
     remittance: function(wallet){
         const TransactionDATA = {
             addressOut: wallet.privateKey,
@@ -71,21 +76,43 @@ async function  BalanceCheck(publicKey,confirm){
     const   dir = fs.readdirSync(blockLocation);
     let     walletIn    = 0;
     let     walletOut   = 0;    
+    const   history = {
+        IN:[],
+        OUT:[],
+    }
+    
     for(file of dir){
         const buffer = fs.readFileSync(blockLocation+file, 'utf8');
         const block = eval("["+ buffer.toString()+"]");
         for(let chain of block) {
-            if(chain){
-                walletIn  += chain.transactions.filter((TRANSACT) => TRANSACT.addressIn  === publicKey).map((TRANSACT) => TRANSACT.amount).reduce((a, b) => parseInt(a) + parseInt(b), 0);
-                walletOut += chain.transactions.filter((TRANSACT) => TRANSACT.addressOut === publicKey).map((TRANSACT) => TRANSACT.amount).reduce((a, b) => parseInt(a) + parseInt(b), 0);
+            if(chain){                
+                const   temporaryIn     = chain.transactions.filter((TRANSACT) => TRANSACT.addressIn  === publicKey);
+                const   temporaryOut    = chain.transactions.filter((TRANSACT) => TRANSACT.addressOut === publicKey);                
+                walletIn    +=  temporaryIn.map((TRANSACT) => TRANSACT.amount).reduce((a, b) => parseInt(a) + parseInt(b), 0);
+                walletOut   +=  temporaryOut.map((TRANSACT) => TRANSACT.amount).reduce((a, b) => parseInt(a) + parseInt(b), 0);
+
+                const   temporary       = history;
+                history.IN  =   temporary.IN.concat(temporaryIn);
+                history.OUT =   temporary.OUT.concat(temporaryIn);
             }
         }
     }    
     if(confirm){
-        walletIn   += transaction.HISTORY.filter((TRANSACT) => TRANSACT.addressIn  === publicKey).map((TRANSACT) => TRANSACT.amount).reduce((a, b) => parseInt(a) + parseInt(b), 0);
-        walletOut  += transaction.HISTORY.filter((TRANSACT) => TRANSACT.addressOut === publicKey).map((TRANSACT) => TRANSACT.amount).reduce((a, b) => parseInt(a) + parseInt(b), 0);
+        const   temporaryIn     = transaction.HISTORY.filter((TRANSACT) => TRANSACT.addressIn  === publicKey);
+        const   temporaryOut    = transaction.HISTORY.filter((TRANSACT) => TRANSACT.addressOut === publicKey);
+        walletIn   += temporaryIn.map((TRANSACT) => TRANSACT.amount).reduce((a, b) => parseInt(a) + parseInt(b), 0);
+        walletOut  += temporaryOut.map((TRANSACT) => TRANSACT.amount).reduce((a, b) => parseInt(a) + parseInt(b), 0);
+
+        const   temporary       = history;
+        history.IN  =   temporary.IN.concat(temporaryIn);
+        history.OUT =   temporary.OUT.concat(temporaryIn);
     }
-    console.log("Balance","in:",walletIn,"out:",walletOut,"total:",walletIn - walletOut);
-    return walletIn - walletOut;
+    responce = {
+        In:         walletIn,
+        Out:        walletOut,
+        Balance:    walletIn - walletOut,
+        History:    history
+    }
+    return responce;
 }
 //지갑 조회
