@@ -50,10 +50,7 @@ module.exports = {
         }
     },
     newFile:    function(BLOCK,DATA){
-        console.log('BLOCK',BLOCK)
-        console.log('DATA',DATA)
         let block = [BLOCK,DATA];        
-        console.log('block',block)
         const dir = fs.readdirSync(blockLocation);
         fs.writeFileSync(blockLocation+`blockchain_${dir.length}.dat`, JSON.stringify(DATA) + ",\n");
         return block;
