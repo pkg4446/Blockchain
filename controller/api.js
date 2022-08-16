@@ -1,10 +1,8 @@
 const {bank,wallet}    = require('../core');
 
 const http        = require('http');
-const url         = require('url');
 
 const app   = http.createServer(function(request,response){
-    let queryData = url.parse(request.url, true).query;
     if(request.url == '/favicon.ico'){
         return response.writeHead(404);   
     }
