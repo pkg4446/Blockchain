@@ -5,8 +5,6 @@ const   Encryption  = require('./encryption');
 const   Coin        = new Blockchain();
 const   transaction = new Transaction();
 
-console.log("Blockchain work on");
-
 ////테스트 코드
 //console.log(wallet);
 module.exports = {
@@ -17,25 +15,21 @@ module.exports = {
             if(balance>=cost){
                 transaction.retirement(cost);
             }else{
-                console.log(transaction.bank(),"has not enough coins");
+                console.log(transaction.bank(),"has not enough coin.");
             }
             
         }
     },
-    airDrop:   function(wallet){                
-        const TransactionDATA = {
-            addressIn:  wallet.publicKey,
-            amount:     wallet.amount,
-        }
-        const balance = BalanceCheck(transaction.bank());
-        if(balance>=cost){
+    airDrop:    async function(wallet){                
+        const balance = await BalanceCheck(transaction.bank());
+        if(balance>=wallet.amount){
             transaction.distribution(wallet);
+            return wallet.publicKey+` get ${wallet.amount} coin.`
         }else{
-            console.log(transaction.bank(),"has not enough coins");
+            return transaction.bank()+" has not enough coin.";
         }
-        
     },
-    Balance:    function(publicKey){BalanceCheck(publicKey);},
+    Balance:    async function(publicKey){await BalanceCheck(publicKey);},
     remittance: function(wallet){
         const TransactionDATA = {
             addressOut: wallet.privateKey,
@@ -48,7 +42,7 @@ module.exports = {
         if(balance>=wallet.amount){
             transaction.txInOut(TransactionDATA);
         }else{
-            console.log(Encryption.getPublic(wallet.privateKey),"has not enough coins");
+            console.log(Encryption.getPublic(wallet.privateKey),"has not enough coin.");
         }
     },
     newBlock:   function(){
@@ -66,7 +60,7 @@ module.exports = {
     }, 
 }
 
-function BalanceCheck(publicKey){
+async function  BalanceCheck(publicKey){
     const   fs  = require('fs');
     const   blockLocation = 'data/block/';
     const   dir = fs.readdirSync(blockLocation);
@@ -82,9 +76,11 @@ function BalanceCheck(publicKey){
             }
         }
     }    
-    const walletIn  = AllTransactions.filter((TRANSACT) => TRANSACT.addressIn  === publicKey).map((TRANSACT) => TRANSACT.amount).reduce((a, b) => a + b, 0);
-    const walletOut = AllTransactions.filter((TRANSACT) => TRANSACT.addressOut === publicKey).map((TRANSACT) => TRANSACT.amount).reduce((a, b) => a + b, 0);
-    console.log("Balance",walletIn,walletOut,walletIn - walletOut);
+    console.log('pendingTransaction',Coin.pendingTransaction)
+
+    const walletIn  = AllTransactions.filter((TRANSACT) => TRANSACT.addressIn  === publicKey).map((TRANSACT) => TRANSACT.amount).reduce((a, b) => parseInt(a) + parseInt(b), 0);
+    const walletOut = AllTransactions.filter((TRANSACT) => TRANSACT.addressOut === publicKey).map((TRANSACT) => TRANSACT.amount).reduce((a, b) => parseInt(a) + parseInt(b), 0);
+    console.log("Balance","in:",walletIn,"out:",walletOut,"total:",walletIn - walletOut);
     return walletIn - walletOut;
 }
 

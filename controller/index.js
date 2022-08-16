@@ -1,6 +1,6 @@
-const issuance      = require('./issuance');
+const api           = require('./api');
 const modules       = {};
 
-modules.issuance    = issuance;
+modules.api         = api;
 
 module.exports      = modules;

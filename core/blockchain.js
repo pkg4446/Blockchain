@@ -1,5 +1,6 @@
 const   record      = require('./record');
 const   Encryption  = require('./encryption');
+const   bolckSave   = 10;
 
 //블록체인 데이터 구조.
 function Blockchain(){
@@ -33,7 +34,6 @@ Blockchain.prototype.createGenesisBlock = function(){
 //블록체인 프로토 타입 함수 정의
 Blockchain.prototype.createNewBlock = function(DATA){
     //새 블록 객체
-    console.log();
     const newBlock = {
         index:              this.block[this.block.length-1].index+1,
         timestamp:          Date.now(),        
@@ -46,7 +46,7 @@ Blockchain.prototype.createNewBlock = function(DATA){
     this.pendingTransaction = [];
     if(this.isValidNewBlock()){
         this.block.push(newBlock);
-        if(this.block.length>5){
+        if(this.block.length>bolckSave){
             this.block = record.newFile(newBlock);
             this.block.length=1;
         }else{
@@ -58,7 +58,9 @@ Blockchain.prototype.createNewBlock = function(DATA){
 
 //마지막 블록 얻기
 Blockchain.prototype.getLastBlock = function(){
-    const lastBlock = this.block[this.block.length - 1];   
+    console.log();
+    const lastBlock = this.block[this.block.length - 1];
+    console.log(lastBlock);
     return lastBlock;
 }
 
