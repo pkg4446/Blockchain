@@ -20,11 +20,15 @@ module.exports = {
             
         }
     },
-    airDrop:    async function(wallet){                
+    airDrop:    async function(wallet,coin){                
         const balance = await BalanceCheck(transaction.bank(),true);
-        if(balance>=wallet.amount){
-            transaction.distribution(wallet);
-            return wallet.publicKey+` get ${wallet.amount} coin.`
+        if(balance>=coin){
+            const data = {
+                publicKey:  wallet,
+                amount:     coin
+            }
+            transaction.distribution(data);
+            return wallet+` get ${coin} coin.`
         }else{
             return transaction.bank()+" has not enough coin.";
         }

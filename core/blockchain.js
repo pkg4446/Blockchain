@@ -1,6 +1,6 @@
 const   record      = require('./record');
 const   Encryption  = require('./encryption');
-const   bolckSave   = 11;
+const   bolckSave   = 145;
 
 //블록체인 데이터 구조.
 function Blockchain(){
