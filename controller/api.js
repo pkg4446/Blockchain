@@ -4,25 +4,34 @@ const web           = require('./web');
 const http        = require('http');
 
 const app   = http.createServer(async function(request,response){
+    let webpage;
     if(request.url == '/favicon.ico'){
         return response.writeHead(404);   
     }
-    if(request.url == '/'){        
-        const webpage = await web.view('index.html');
-        response.writeHead(200);
-        response.write(webpage);
-        response.end();
-    }
-    if(request.url == '/api'){
-        let body = '';
-        request.on('data', function(data){
-            body += data;
-            if(body.length > 1e6) request.destroy();
-        });
-        request.on('end', function () {
-            let post = JSON.parse(body);
-            POST(response,post);
-        });
+    switch (request.url) {
+        case '/api':
+            let body = '';
+            request.on('data', function(data){
+                body += data;
+                if(body.length > 1e6) request.destroy();
+            });
+            request.on('end', function () {
+                let post = JSON.parse(body);
+                POST(response,post);
+            });
+            break;   
+        case '/admin':
+            webpage = await web.view('admin.html');
+            response.writeHead(200);
+            response.write(webpage);
+            response.end();
+            break;       
+        default:
+            webpage = await web.view('index.html');
+            response.writeHead(200);
+            response.write(webpage);
+            response.end();
+            break;
     }
 });
 app.listen(3001);
