@@ -49,10 +49,14 @@ module.exports = {
             console.log('There is no savefile.');
         }
     },
-    newFile:    function(DATA){
+    newFile:    function(BLOCK,DATA){
+        console.log('BLOCK',BLOCK)
+        console.log('DATA',DATA)
+        let block = [BLOCK,DATA];        
+        console.log('block',block)
         const dir = fs.readdirSync(blockLocation);
         fs.writeFileSync(blockLocation+`blockchain_${dir.length}.dat`, JSON.stringify(DATA) + ",\n");
-        return DATA;
+        return block;
     },
     initBlockChain: function(DATA){
         if (fs.existsSync(blockLocation+blockFile)) {

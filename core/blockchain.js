@@ -1,6 +1,6 @@
 const   record      = require('./record');
 const   Encryption  = require('./encryption');
-const   bolckSave   = 10;
+const   bolckSave   = 11;
 
 //블록체인 데이터 구조.
 function Blockchain(){
@@ -47,8 +47,8 @@ Blockchain.prototype.createNewBlock = function(DATA){
     if(this.isValidNewBlock()){
         this.block.push(newBlock);
         if(this.block.length>bolckSave){
-            this.block = record.newFile(newBlock);
-            this.block.length=1;
+            this.block = record.newFile(this.block[bolckSave-1],newBlock);
+            this.block.length = 2;
         }else{
             record.addBlock(newBlock);
         }        
@@ -107,7 +107,7 @@ Blockchain.prototype.proofOfWork = function(DATA){
 
 //난이도 조절 함수
 function difficult(blockChain){       
-    if(blockChain.getLastBlock().index % Generation.adjustmentBlock == 0 && blockChain.block.length > 1){           
+    if(blockChain.getLastBlock().index % Generation.adjustmentBlock == 0 && blockChain.block.length > Generation.adjustmentBlock + 1){           
         const blockInterver =   blockChain.getLastBlock().timestamp - 
                                 blockChain.block[blockChain.getLastBlock().index-Generation.adjustmentBlock].timestamp;
         if(blockInterver/Generation.adjustmentBlock < Generation.interval/2){
