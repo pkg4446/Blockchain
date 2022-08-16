@@ -44,6 +44,8 @@ Blockchain.prototype.createNewBlock = function(DATA){
     };
     //다음 거래를 위한 거래내역 배열 비워주고 새로운 블록을 block 배열에 추가 
     this.pendingTransaction = [];
+    console.log('new newBlock', newBlock);
+    console.log('new pendingTransaction', this.pendingTransaction);
     if(this.isValidNewBlock()){
         this.block.push(newBlock);
         if(this.block.length>bolckSave){
@@ -58,9 +60,7 @@ Blockchain.prototype.createNewBlock = function(DATA){
 
 //마지막 블록 얻기
 Blockchain.prototype.getLastBlock = function(){
-    console.log();
     const lastBlock = this.block[this.block.length - 1];
-    console.log(lastBlock);
     return lastBlock;
 }
 
@@ -98,8 +98,6 @@ Blockchain.prototype.proofOfWork = function(DATA){
         DATA.nonce++;
         hash = this.hashBlock(DATA)
     } 
-    console.log("Generation.level",Generation.level);
-    
     //난이도 조절 함수
     difficult(this);
     return DATA.nonce;
@@ -115,10 +113,6 @@ function difficult(blockChain){
         }else if(blockInterver/Generation.adjustmentBlock > Generation.interval*2){
             if(Generation.level > 1){  Generation.level--;    }
         }
-
-        console.log("level", Generation.level)
-        console.log("interval1", blockInterver/Generation.adjustmentBlock)
-        console.log("interval2", blockInterver)
     }
 }
 

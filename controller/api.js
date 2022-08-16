@@ -52,7 +52,7 @@ async function POST(response,data){
         case 'airDrop':            
             const walletMake    = new wallet()
             if(KEY == walletMake.getPrivate())
-                res.text = bank.airDrop(TransactionDATA);
+                res.text = await bank.airDrop(TransactionDATA);
             break;
         case 'makeNewBlock':
             bank.newBlock();

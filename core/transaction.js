@@ -61,7 +61,7 @@ Transaction.prototype.distribution = function(DATA){
         id:         "",
         time:       new Date().toString(),
         addressOut: bank,
-        addressIn:  DATA.addressIn,
+        addressIn:  DATA.publicKey,
         amount:     DATA.amount,       
         signature:  "",
     }

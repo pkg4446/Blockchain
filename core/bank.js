@@ -48,6 +48,7 @@ module.exports = {
     newBlock:   function(){
         const newBlock = {};
         Coin.createNewTransaction(transaction.HISTORY);
+        transaction.HISTORY = [];
         newBlock.index          = Coin.getLastBlock().index;
         newBlock.timestamp      = Coin.getLastBlock().timestamp;
         newBlock.transactions   = Coin.pendingTransaction;
@@ -64,24 +65,21 @@ async function  BalanceCheck(publicKey){
     const   fs  = require('fs');
     const   blockLocation = 'data/block/';
     const   dir = fs.readdirSync(blockLocation);
-    let AllTransactions = [];
+    let     walletIn    = 0;
+    let     walletOut   = 0;    
     for(file of dir){
         const buffer = fs.readFileSync(blockLocation+file, 'utf8');
         const block = eval("["+ buffer.toString()+"]");
         for(let chain of block) {
             if(chain){
-                for(let tx of chain.transactions) {
-                    AllTransactions.push(tx);
-                }
+                walletIn  += chain.transactions.filter((TRANSACT) => TRANSACT.addressIn  === publicKey).map((TRANSACT) => TRANSACT.amount).reduce((a, b) => parseInt(a) + parseInt(b), 0);
+                walletOut += chain.transactions.filter((TRANSACT) => TRANSACT.addressOut === publicKey).map((TRANSACT) => TRANSACT.amount).reduce((a, b) => parseInt(a) + parseInt(b), 0);
             }
         }
     }    
-    console.log('pendingTransaction',Coin.pendingTransaction)
-
-    const walletIn  = AllTransactions.filter((TRANSACT) => TRANSACT.addressIn  === publicKey).map((TRANSACT) => TRANSACT.amount).reduce((a, b) => parseInt(a) + parseInt(b), 0);
-    const walletOut = AllTransactions.filter((TRANSACT) => TRANSACT.addressOut === publicKey).map((TRANSACT) => TRANSACT.amount).reduce((a, b) => parseInt(a) + parseInt(b), 0);
+    walletIn   += transaction.HISTORY.filter((TRANSACT) => TRANSACT.addressIn  === publicKey).map((TRANSACT) => TRANSACT.amount).reduce((a, b) => parseInt(a) + parseInt(b), 0);
+    walletOut  += transaction.HISTORY.filter((TRANSACT) => TRANSACT.addressOut === publicKey).map((TRANSACT) => TRANSACT.amount).reduce((a, b) => parseInt(a) + parseInt(b), 0);
     console.log("Balance","in:",walletIn,"out:",walletOut,"total:",walletIn - walletOut);
     return walletIn - walletOut;
 }
-
 //지갑 조회
