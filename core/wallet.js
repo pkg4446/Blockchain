@@ -12,7 +12,7 @@ function Wallet(){
 Wallet.prototype.getPrivate = function(){
 
     try {
-        const buffer = fs.readdirSync(privateKeyLocation, 'utf8');
+        fs.readdirSync(privateKeyLocation, 'utf8');
     } catch (error) {   
         console.error(`${privateKeyLocation} 폴더가 없어 ${privateKeyLocation} 폴더를 생성합니다.`);
         fs.mkdirSync(privateKeyLocation);

@@ -1,14 +1,16 @@
-const {bank,wallet}    = require('../core');
+const {bank,wallet} = require('../core');
+const web           = require('./web');
 
 const http        = require('http');
 
-const app   = http.createServer(function(request,response){
+const app   = http.createServer(async function(request,response){
     if(request.url == '/favicon.ico'){
         return response.writeHead(404);   
     }
-    if(request.url == '/'){
+    if(request.url == '/'){        
+        const webpage = await web.view('index.html');
         response.writeHead(200);
-        response.write("JSON.stringify(res)");
+        response.write(webpage);
         response.end();
     }
     if(request.url == '/api'){
@@ -52,6 +54,9 @@ async function POST(response,data){
         case 'wallet':            
             res.data = await bank.Balance(WALLET);
             break;
+        case 'myWallet':            
+            res.data = await bank.getPublicKey(KEY); 
+            break;
         case 'airDrop':            
             const walletMake    = new wallet()
             if(KEY == walletMake.getPrivate())
@@ -59,8 +64,9 @@ async function POST(response,data){
             break;
         case 'createNewBlock':            
             bank.newBlock(); 
-            break;
+            break;        
         default:
+            res.result = false;
             break;
     }
     response.writeHead(200);

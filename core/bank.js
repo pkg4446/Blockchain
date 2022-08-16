@@ -68,6 +68,10 @@ module.exports = {
         newBlock.previousHash   = Coin.getLastBlock().hash;
         Coin.createNewBlock(newBlock);
     }, 
+    getPublicKey:   async function(privateKey){
+        console.log(Encryption.getPublic(privateKey));
+        return Encryption.getPublic(privateKey);
+    }, 
 }
 
 async function  BalanceCheck(publicKey,confirm){
