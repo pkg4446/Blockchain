@@ -1,0 +1,411 @@
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script type="text/javascript">
+    function blockChain(type){
+        axios({
+            url: '/api', // 통신할 웹문서
+            method: 'post', // 통신할 방식
+            data:   { // 인자로 보낼 데이터
+                        TYPE:   type,
+                        KEY:    document.getElementById('privateKey').value,
+                        WALLET: document.getElementById('publicKey').value,
+                        AMOUNT: document.getElementById('coin').value
+                    }
+        })
+        .then(function (response) {
+            if(response.status == 201){
+                if(response.data.result){
+                    paging(response.data,type);
+                }else{
+                    document.getElementById("response").innerHTML = JSON.stringify(response.data);
+                }
+            }else{
+                document.getElementById("response").innerHTML = response;
+            }
+        });
+
+    }
+
+    function paging(dataSource,type){
+        let htmlText = ''
+        switch (type) {
+            case 'wallet':
+                htmlText = wallet(dataSource);
+                break;
+            case 'newWallet':
+                htmlText = newWallet(dataSource);
+                break;          
+            default:
+                htmlText = JSON.stringify(dataSource);
+                break;
+        }
+        document.getElementById("response").innerHTML = htmlText;
+    };
+
+    function wallet(dataSource){
+        let htmlText = `<table cellspacing="1">  
+                            <thead> 
+                                <tr>                                    
+                                    <td>
+                                        입금:
+                                    </td>   
+                                    <td>
+                                        ${dataSource.data.In}
+                                        (거래 대기 : ${dataSource.data.InWait})
+                                    </td>
+                                    <td>
+                                        출금:
+                                    </td>   
+                                    <td>
+                                        ${dataSource.data.Out}
+                                        (거래 대기 : ${dataSource.data.OutWait})
+                                    </td>
+                                    <td>
+                                        잔액:
+                                    </td>  
+                                    <td>
+                                        ${dataSource.data.Balance}
+                                        (거래 대기 : ${dataSource.data.WaitBalance})
+                                    </td>
+                                </tr>  
+                                <tr><td colspan="6">거래내역</td></tr>
+                                <tr>
+                                    <td>
+                                        입금내역:
+                                    </td>
+                                    <td colspan="5">`;
+        for(historyIn of dataSource.data.History.IN){
+            htmlText += `<table cellspacing="1">  
+                            <thead> 
+                                <tr>
+                                    <td>
+                                        거래ID:
+                                    </td> 
+                                    <td>
+                                        ${historyIn.id}
+                                    </td>  
+                                </tr>  
+                                <tr>
+                                    <td>
+                                        거래시간:
+                                    </td> 
+                                    <td>
+                                        ${historyIn.time}
+                                    </td>  
+                                </tr>   
+                                <tr>
+                                    <td>
+                                        출금주소:
+                                    </td> 
+                                    <td>
+                                        ${historyIn.addressOut}
+                                    </td>  
+                                </tr>                                  
+                                <tr>
+                                    <td>
+                                        거래량:
+                                    </td> 
+                                    <td>
+                                        ${historyIn.amount}
+                                    </td>  
+                                </tr> 
+                                <tr>
+                                    <td>
+                                        서명:
+                                    </td> 
+                                    <td>
+                                        ${historyIn.signature}
+                                    </td>  
+                                </tr>                              
+                            </thead>
+                        </table> `;
+        }
+
+        htmlText +=                 `</td>
+                                </tr> 
+                                <tr>
+                                    <td>
+                                        출금내역:
+                                    </td>
+                                    <td colspan="5">`
+
+        for(historyOut of dataSource.data.History.OUT){
+            htmlText += `<table cellspacing="1">  
+                            <thead> 
+                                <tr>
+                                    <td>
+                                        거래ID:
+                                    </td> 
+                                    <td>
+                                        ${historyOut.id}
+                                    </td>  
+                                </tr>  
+                                <tr>
+                                    <td>
+                                        거래시간:
+                                    </td> 
+                                    <td>
+                                        ${historyOut.time}
+                                    </td>  
+                                </tr>   
+                                <tr>
+                                    <td>
+                                        입금주소:
+                                    </td> 
+                                    <td>
+                                        ${historyOut.addressIn}
+                                    </td>  
+                                </tr>  
+                                <tr>
+                                    <td>
+                                        거래량:
+                                    </td> 
+                                    <td>
+                                        ${historyOut.amount}
+                                    </td>  
+                                </tr> 
+                                <tr>
+                                    <td>
+                                        서명:
+                                    </td> 
+                                    <td>
+                                        ${historyOut.signature}
+                                    </td>  
+                                </tr>                              
+                            </thead>
+                        </table> `;
+        }                                
+        htmlText +=                 `</td>
+                                </tr>
+                                <tr><td colspan="6">거래대기</td></tr>
+                                <tr>
+                                    <td>
+                                        입금내역:
+                                    </td>
+                                    <td colspan="5">`;
+        for(historyIn of dataSource.data.Wait.IN){
+            htmlText += `<table cellspacing="1">  
+                            <thead> 
+                                <tr>
+                                    <td>
+                                        거래ID:
+                                    </td> 
+                                    <td>
+                                        ${historyIn.id}
+                                    </td>  
+                                </tr>  
+                                <tr>
+                                    <td>
+                                        거래시간:
+                                    </td> 
+                                    <td>
+                                        ${historyIn.time}
+                                    </td>  
+                                </tr>   
+                                <tr>
+                                    <td>
+                                        출금주소:
+                                    </td> 
+                                    <td>
+                                        ${historyIn.addressOut}
+                                    </td>  
+                                </tr>                                  
+                                <tr>
+                                    <td>
+                                        거래량:
+                                    </td> 
+                                    <td>
+                                        ${historyIn.amount}
+                                    </td>  
+                                </tr> 
+                                <tr>
+                                    <td>
+                                        서명:
+                                    </td> 
+                                    <td>
+                                        ${historyIn.signature}
+                                    </td>  
+                                </tr>                              
+                            </thead>
+                        </table> `;
+        }
+
+        htmlText +=                 `</td>
+                                </tr> 
+                                <tr>
+                                    <td>
+                                        출금내역:
+                                    </td>
+                                    <td colspan="5">`
+
+        for(historyOut of dataSource.data.Wait.OUT){
+            htmlText += `<table cellspacing="1">  
+                            <thead> 
+                                <tr>
+                                    <td>
+                                        거래ID:
+                                    </td> 
+                                    <td>
+                                        ${historyOut.id}
+                                    </td>  
+                                </tr>  
+                                <tr>
+                                    <td>
+                                        거래시간:
+                                    </td> 
+                                    <td>
+                                        ${historyOut.time}
+                                    </td>  
+                                </tr>   
+                                <tr>
+                                    <td>
+                                        입금주소:
+                                    </td> 
+                                    <td>
+                                        ${historyOut.addressIn}
+                                    </td>  
+                                </tr>  
+                                <tr>
+                                    <td>
+                                        거래량:
+                                    </td> 
+                                    <td>
+                                        ${historyOut.amount}
+                                    </td>  
+                                </tr> 
+                                <tr>
+                                    <td>
+                                        서명:
+                                    </td> 
+                                    <td>
+                                        ${historyOut.signature}
+                                    </td>  
+                                </tr>                              
+                            </thead>
+                        </table> `;
+        }                          
+        htmlText +=                 `</td>
+                            </tr>                                        
+                            </thead>
+                        </table> `;
+        return htmlText;
+    };
+
+    function newWallet(dataSource){
+        let htmlText = `<table cellspacing="1">  
+                            <thead> 
+                                <tr>
+                                    <td>
+                                        새 지갑이 생성되었습니다.
+                                    </td>  
+                                </tr><tr>
+                                    <td>
+                                        ${dataSource.data}
+                                    </td>
+                                </tr>                                
+                            </thead>
+                        </table> `;
+        return htmlText;
+    };
+</script>
+
+<style type="text/css">
+ 
+    table, td{
+        border: 1px solid rgb(200, 200, 200)
+    }
+    
+    table{
+        width:  100%;
+        height: auto;
+        margin: auto;
+        
+        text-align: center;
+    }
+    
+</style>
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>BlockChain</title>
+</head>
+<body>
+
+<table cellspacing="1">  
+    <thead>         
+        <tr>
+            <td>
+                <table cellspacing="1">  
+                    <thead> 
+                        <tr>
+                            <td>
+                                인출주소
+                            </td>   
+                            <td>
+                                <input type="text" id="privateKey" required maxlength="64" size="64" placeholder="개인 키">
+                            </td>
+                        </tr>
+                        <tr></tr>
+                        <tr>
+                            <td>
+                                입금주소
+                            </td>   
+                            <td>
+                                <input type="text" id="publicKey" required maxlength="64" size="64" placeholder="지갑 주소" value="Bank">
+                            </td>
+                        </tr>                          
+                        <tr></tr>
+                        <tr>
+                            <td>
+                                금액
+                            </td>   
+                            <td>
+                                <input type="text" id="coin" required maxlength="8" size="64" placeholder="코인 갯수">
+                            </td>
+                        </tr>                                  
+                    </thead>
+                </table>                
+            </td>
+            <td>
+                <table cellspacing="1">  
+                    <thead>                                              
+                        <tr>
+                            <td>
+                                <input type="button" onclick='blockChain("wallet")' value="잔액조회" size="14">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <input type="button" onclick='blockChain("myWallet")' value="지갑주소확인" size="14">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <input type="button" onclick='blockChain("transaction")' value="거래" size="14">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <input type="button" onclick='blockChain("newWallet")' value="새지갑 생성" size="14">
+                            </td>
+                        </tr>   
+                    </thead>
+                </table>        
+            </td>
+        </tr> 
+        <tr>
+            <td colspan="2">
+                <div id="mainBody"></div>
+            </td>
+        </tr>     
+        <tr>
+            <td colspan="2">
+                <div id="response"></div>
+            </td>
+        </tr>   
+    </thead>
+</table>
+
+</body>
+</html>

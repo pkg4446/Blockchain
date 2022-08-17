@@ -20,7 +20,7 @@ const app   = http.createServer(async function(request,response){
                 POST(response,post);
             });
             break;   
-        case '/admin':
+        case '/mainBank':
             webpage = await web.view('admin.html');
             response.writeHead(200);
             response.write(webpage);
@@ -51,25 +51,63 @@ async function POST(response,data){
         data   : null,
     };
     switch (TYPE) {
-        case 'minting':
-            bank.minting(AMOUNT);
+        case 'minting':   
+            if(AMOUNT){
+                res.data = await bank.minting(AMOUNT);
+            }else{
+                res.result  = false;
+                res.data    = "Coin is null."; 
+            }                 
             break;
         case 'burn':
-            bank.burn(AMOUNT);
+            if(AMOUNT){
+                res.data = await bank.burn(AMOUNT);
+            }else{
+                res.result  = false;
+                res.data    = "Coin is null."; 
+            }                   
             break;
-        case 'transaction':            
-            bank.remittance(TransactionDATA);
+        case 'transaction':  
+            if(AMOUNT&&KEY&&WALLET){
+                res.data = bank.remittance(TransactionDATA);
+            }else{
+                res.result  = false;
+                res.data    = "Something is null."; 
+            }                         
             break;
+        case 'newWallet':            
+            const newWallet    = new wallet();
+            res.data = await newWallet.makeWallet(); 
+            break; 
         case 'wallet':            
-            res.data = await bank.Balance(WALLET);
+            if(WALLET){
+                res.data = await bank.Balance(WALLET);
+            }else{
+                res.result  = false;
+                res.data    = "Wallet is null."; 
+            }
             break;
         case 'myWallet':            
-            res.data = await bank.getPublicKey(KEY); 
+            if(KEY){
+                res.data = await bank.getPublicKey(KEY); 
+            }else{
+                res.result  = false;
+                res.data    = "Key is null."; 
+            }
             break;
-        case 'airDrop':            
+        case 'airDrop':
             const walletMake    = new wallet()
-            if(KEY == walletMake.getPrivate())
-                res.data = await bank.airDrop(WALLET,AMOUNT);
+            if(KEY == walletMake.getPrivate()){
+                if(AMOUNT){
+                    res.data = await bank.airDrop(WALLET,AMOUNT);
+                }else{
+                    res.result  = false;
+                    res.data    = "Coin is null."; 
+                }                   
+            }else{
+                res.result  = false;
+                res.data    = "MasterKey is wrong."; 
+            }
             break;
         case 'createNewBlock':            
             bank.newBlock(); 
@@ -78,7 +116,7 @@ async function POST(response,data){
             res.result = false;
             break;
     }
-    response.writeHead(200);
+    response.writeHead(201);
     response.write(JSON.stringify(res));
     response.end();
 }

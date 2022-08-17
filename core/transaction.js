@@ -26,7 +26,7 @@ Transaction.prototype.txInOut = function(DATA){
     return this.HISTORY;
 }
 
-Transaction.prototype.issuance = function(cost){
+Transaction.prototype.issuance = async function(cost){
     const transaction = {        
         id:         "",
         time:       new Date().toString(),
@@ -38,7 +38,7 @@ Transaction.prototype.issuance = function(cost){
     transaction.signature = this.signTransactionIn(transaction.addressOut);
     transaction.id = encryption.transactionID(this.HISTORY);
     this.HISTORY.push(transaction);
-    return this.HISTORY;
+    return transaction;
 }
 
 Transaction.prototype.retirement = function(cost){

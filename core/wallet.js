@@ -36,10 +36,7 @@ Wallet.prototype.initWallet = function(){
     console.log('new wallet with private key created');
 }
 
-Wallet.prototype.makeWallet = function(){    
-    if (fs.existsSync(privateKeyLocation+privateKeyFile)) {
-        return;
-    }
+Wallet.prototype.makeWallet = async function(){    
     const newPrivateKey = encryption.generatePrivateKey();
     console.log('new wallet with private key created',newPrivateKey);
     return newPrivateKey;
