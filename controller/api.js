@@ -110,7 +110,7 @@ async function POST(response,data){
             }
             break;
         case 'createNewBlock':            
-            bank.newBlock(); 
+            res.result  = await bank.newBlock(); 
             break;        
         default:
             res.result = false;

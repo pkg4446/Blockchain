@@ -63,7 +63,7 @@ module.exports = {
             return Encryption.getPublic(wallet.privateKey) + "has not enough the coin.";
         }
     },
-    newBlock:   function(){        
+    newBlock:   async function(){        
         if(transaction.HISTORY.length){  
             const newBlock = {}; 
             Coin.createNewTransaction(transaction.HISTORY);
