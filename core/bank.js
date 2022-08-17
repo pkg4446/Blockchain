@@ -96,7 +96,6 @@ module.exports = {
         }
     }, 
     getPublicKey:   async function(privateKey){
-        console.log(Encryption.getPublic(privateKey));
         return Encryption.getPublic(privateKey);
     }, 
 }
