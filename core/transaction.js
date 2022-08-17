@@ -11,7 +11,7 @@ Transaction.prototype.bank = function(){
     return bank;
 }
 
-Transaction.prototype.txInOut = function(DATA){
+Transaction.prototype.txInOut = async function(DATA){
     const transaction = {        
         id:         "",
         time:       new Date().toString(),

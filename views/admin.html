@@ -75,6 +75,22 @@
         text-align: center;
     }
     
+    input[type=button] {
+        margin: 0;
+        padding: 0.5rem 2rem;
+
+        font-family: "Noto Sans KR", sans-serif;
+        font-size: 1rem;
+        font-weight: 400;
+        text-align: center;
+        text-decoration: none;
+
+        display: inline-block;
+        width: 150px;
+
+        border: none;
+        border-radius: 10px;
+    }
 </style>
 
 <!DOCTYPE html>
@@ -96,7 +112,7 @@
                                 마스터 키
                             </td>   
                             <td>
-                                <input type="text" id="privateKey" required maxlength="64" size="64" placeholder="개인 키">
+                                <input type="text" id="privateKey" required maxlength="64" size="130" placeholder="개인 키">
                             </td>
                         </tr>
                         <tr>
@@ -104,7 +120,7 @@
                                 입금주소
                             </td>   
                             <td>
-                                <input type="text" id="publicKey" required maxlength="64" size="64" placeholder="지갑 주소" value="Bank">
+                                <input type="text" id="publicKey" required maxlength="130" size="130" placeholder="지갑 주소" value="Bank">
                             </td>
                         </tr>                          
                         <tr></tr>
@@ -113,7 +129,7 @@
                                 금액
                             </td>   
                             <td>
-                                <input type="text" id="coin" required maxlength="8" size="64" placeholder="코인 갯수">
+                                <input type="text" id="coin" required maxlength="16" size="130" placeholder="코인 갯수">
                             </td>
                         </tr>                                  
                     </thead>

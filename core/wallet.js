@@ -38,9 +38,12 @@ Wallet.prototype.initWallet = function(){
 }
 
 Wallet.prototype.makeWallet = async function(){    
-    const newPrivateKey = encryption.generatePrivateKey();
-    console.log('new wallet with private key created',newPrivateKey);
-    return newPrivateKey;
+    const newWallet = {
+        PrivateKey: encryption.generatePrivateKey(),
+        publicKey:  ''
+    }
+    newWallet.publicKey = encryption.getPublic(newWallet.PrivateKey);
+    return newWallet;
 }
 
 module.exports = Wallet;

@@ -37,10 +37,12 @@ const app   = http.createServer(async function(request,response){
 app.listen(3001);
 
 async function POST(response,data){
+    const decimalPoint  = await bank.decimalPoint();
     const TYPE      =   data.TYPE;
     const KEY       =   data.KEY;
     const WALLET    =   data.WALLET;
-    const AMOUNT    =   data.AMOUNT;
+    const AMOUNT    =   Math.round(data.AMOUNT* decimalPoint) / decimalPoint;
+
     const TransactionDATA = {
         privateKey: KEY,
         publicKey:  WALLET,
@@ -68,38 +70,49 @@ async function POST(response,data){
             }                   
             break;
         case 'transaction':  
-            if(AMOUNT&&KEY&&WALLET){
-                res.data = bank.remittance(TransactionDATA);
+            if((KEY.length!=64)||(WALLET.length!=130)){
+                res.result  = false;
+                res.data    = "Wallet is wrong."; 
+                break;
+            }
+            if(AMOUNT){
+                res.data = await bank.remittance(TransactionDATA);
             }else{
                 res.result  = false;
                 res.data    = "Something is null."; 
             }                         
             break;
         case 'newWallet':            
-            const newWallet    = new wallet();
-            res.data = await newWallet.makeWallet(); 
+            const newWallet = new wallet();
+            res.data        = await newWallet.makeWallet(); 
             break; 
-        case 'wallet':            
+        case 'wallet':             
+            console.log();
             if(WALLET){
-                res.data = await bank.Balance(WALLET);
+                res.data    = await bank.Balance(WALLET);
             }else{
                 res.result  = false;
-                res.data    = "Wallet is null."; 
+                res.data    = "Wallet is wrong."; 
             }
             break;
         case 'myWallet':            
-            if(KEY){
+            if(KEY.length  == 64){
                 res.data = await bank.getPublicKey(KEY); 
             }else{
                 res.result  = false;
-                res.data    = "Key is null."; 
+                res.data    = "Key is wrong."; 
             }
             break;
         case 'airDrop':
             const walletMake    = new wallet()
+            if(WALLET.length != 130){
+                res.result  = false;
+                res.data    = "Wallet is wrong."; 
+                break;
+            }
             if(KEY == walletMake.getPrivate()){
                 if(AMOUNT){
-                    res.data = await bank.airDrop(WALLET,AMOUNT);
+                    res.data    = await bank.airDrop(WALLET,AMOUNT);
                 }else{
                     res.result  = false;
                     res.data    = "Coin is null."; 
@@ -113,7 +126,7 @@ async function POST(response,data){
             res.result  = await bank.newBlock(); 
             break;        
         default:
-            res.result = false;
+            res.result  = false;
             break;
     }
     response.writeHead(201);

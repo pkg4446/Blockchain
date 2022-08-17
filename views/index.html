@@ -16,7 +16,7 @@
                 if(response.data.result){
                     paging(response.data,type);
                 }else{
-                    document.getElementById("response").innerHTML = JSON.stringify(response.data);
+                    paging(response.data,"basic");
                 }
             }else{
                 document.getElementById("response").innerHTML = response;
@@ -33,12 +33,40 @@
                 break;
             case 'newWallet':
                 htmlText = newWallet(dataSource);
+                break;
+            case 'myWallet':
+                htmlText = publicWallet(dataSource);
+                break;   
+            case 'transaction':
+                document.getElementById('coin').value = '';
+                htmlText = basic(dataSource);
                 break;          
             default:
-                htmlText = JSON.stringify(dataSource);
+                htmlText = basic(dataSource);
                 break;
         }
         document.getElementById("response").innerHTML = htmlText;
+    };
+
+    function basic(dataSource){
+        let htmlText = `<table cellspacing="1">  
+                            <thead> 
+                                <tr>
+                                    <td>
+                                        결과 : ${dataSource.result}
+                                    </td>  
+                                </tr><tr>
+                                    <td>
+                                        - 데이터 -
+                                    </td>
+                                </tr><tr>
+                                    <td>
+                                        ${dataSource.data}
+                                    </td>
+                                </tr>                                 
+                            </thead>
+                        </table> `;
+        return htmlText;
     };
 
     function wallet(dataSource){
@@ -299,9 +327,30 @@
                                     </td>  
                                 </tr><tr>
                                     <td>
+                                        비밀 키: ${dataSource.data.PrivateKey}
+                                    </td>
+                                </tr><tr>
+                                    <td>
+                                        지갑주소: ${dataSource.data.publicKey}
+                                    </td>
+                                </tr>                                 
+                            </thead>
+                        </table> `;
+        return htmlText;
+    };
+
+    function publicWallet(dataSource){
+        let htmlText = `<table cellspacing="1">  
+                            <thead> 
+                                <tr>
+                                    <td>
+                                        지갑 주소
+                                    </td>  
+                                </tr><tr>
+                                    <td>
                                         ${dataSource.data}
                                     </td>
-                                </tr>                                
+                                </tr>                                 
                             </thead>
                         </table> `;
         return htmlText;
@@ -322,6 +371,22 @@
         text-align: center;
     }
     
+    input[type=button] {
+        margin: 0;
+        padding: 0.5rem 2rem;
+
+        font-family: "Noto Sans KR", sans-serif;
+        font-size: 1rem;
+        font-weight: 400;
+        text-align: center;
+        text-decoration: none;
+
+        display: inline-block;
+        width: 150px;
+
+        border: none;
+        border-radius: 10px;
+    }
 </style>
 
 <!DOCTYPE html>
@@ -343,7 +408,7 @@
                                 인출주소
                             </td>   
                             <td>
-                                <input type="text" id="privateKey" required maxlength="64" size="64" placeholder="개인 키">
+                                <input type="text" id="privateKey" required maxlength="64" size="130" placeholder="개인 키">
                             </td>
                         </tr>
                         <tr></tr>
@@ -352,7 +417,7 @@
                                 입금주소
                             </td>   
                             <td>
-                                <input type="text" id="publicKey" required maxlength="64" size="64" placeholder="지갑 주소" value="Bank">
+                                <input type="text" id="publicKey" required maxlength="130" size="130" placeholder="지갑 주소" value="Bank">
                             </td>
                         </tr>                          
                         <tr></tr>
@@ -361,7 +426,7 @@
                                 금액
                             </td>   
                             <td>
-                                <input type="text" id="coin" required maxlength="8" size="64" placeholder="코인 갯수">
+                                <input type="text" id="coin" required maxlength="16" size="130" placeholder="코인 갯수">
                             </td>
                         </tr>                                  
                     </thead>
@@ -372,22 +437,22 @@
                     <thead>                                              
                         <tr>
                             <td>
-                                <input type="button" onclick='blockChain("wallet")' value="잔액조회" size="14">
+                                <input type="button" onclick='blockChain("wallet")' value="잔액조회" size="30">
                             </td>
                         </tr>
                         <tr>
                             <td>
-                                <input type="button" onclick='blockChain("myWallet")' value="지갑주소확인" size="14">
+                                <input type="button" onclick='blockChain("myWallet")' value="지갑주소확인" size="30">
                             </td>
                         </tr>
                         <tr>
                             <td>
-                                <input type="button" onclick='blockChain("transaction")' value="거래" size="14">
+                                <input type="button" onclick='blockChain("transaction")' value="거래" size="30">
                             </td>
                         </tr>
                         <tr>
                             <td>
-                                <input type="button" onclick='blockChain("newWallet")' value="새지갑 생성" size="14">
+                                <input type="button" onclick='blockChain("newWallet")' value="새지갑 생성" size="30">
                             </td>
                         </tr>   
                     </thead>

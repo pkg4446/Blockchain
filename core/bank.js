@@ -5,9 +5,15 @@ const   Encryption  = require('./encryption');
 const   Coin        = new Blockchain();
 const   transaction = new Transaction();
 
+const   decimalPoint= 100000000;
+const   feeRatio    = 1000;
 ////테스트 코드
 //console.log(wallet);
 module.exports = {
+    decimalPoint: async function(){    
+        return decimalPoint;
+    },
+
     minting:    async function(coin){    
         const cost      = Number(coin);    
         if(cost) {
@@ -48,17 +54,23 @@ module.exports = {
         return balance;
     },
     remittance: async function(wallet){
-        const TransactionDATA = {
-            addressOut: wallet.privateKey,
-            addressIn:  wallet.publicKey,
-            amount:     wallet.amount,
-        }
         //새로운 트랜잭션 생성
-         //새로운 트랜잭션 생성
-        const balance = BalanceCheck(Encryption.getPublic(wallet.privateKey));
-        if(balance.Balance>=wallet.amount && balance.WaitBalance>=wallet.amount){
+        const balance   = await BalanceCheck(Encryption.getPublic(wallet.privateKey));
+        const totalCoin = wallet.amount + (wallet.amount/feeRatio);
+        if(balance.Balance>=totalCoin && (balance.Balance+balance.WaitBalance)>=totalCoin){
+            const TransactionDATA = {
+                addressOut: wallet.privateKey,
+                addressIn:  wallet.publicKey,
+                amount:     wallet.amount,
+            }
             transaction.txInOut(TransactionDATA);
-            return Encryption.getPublic(wallet.privateKey) +` send ${wallet.amount} coin.`
+            const TransactionFee = {
+                addressOut: wallet.privateKey,
+                addressIn:  transaction.bank(),
+                amount:     wallet.amount/feeRatio,
+            }
+            transaction.txInOut(TransactionFee);
+            return Encryption.getPublic(wallet.privateKey) +` send ${await decimalPointRound(totalCoin)} coin.`
         }else{
             return Encryption.getPublic(wallet.privateKey) + "has not enough the coin.";
         }
@@ -113,8 +125,8 @@ async function  BalanceCheck(publicKey){
             if(chain){                
                 const   temporaryIn     = chain.transactions.filter((TRANSACT) => TRANSACT.addressIn  === publicKey);
                 const   temporaryOut    = chain.transactions.filter((TRANSACT) => TRANSACT.addressOut === publicKey);                
-                walletIn    +=  temporaryIn.map((TRANSACT) => TRANSACT.amount).reduce((a, b) => parseInt(a) + parseInt(b), 0);
-                walletOut   +=  temporaryOut.map((TRANSACT) => TRANSACT.amount).reduce((a, b) => parseInt(a) + parseInt(b), 0);
+                walletIn    +=  temporaryIn.map((TRANSACT) => TRANSACT.amount).reduce((a, b) => parseFloat(a) + parseFloat(b), 0);
+                walletOut   +=  temporaryOut.map((TRANSACT) => TRANSACT.amount).reduce((a, b) => parseFloat(a) + parseFloat(b), 0);
 
                 const   temporary       = history;
                 history.IN  =   temporary.IN.concat(temporaryIn);
@@ -125,23 +137,27 @@ async function  BalanceCheck(publicKey){
 
     const   temporaryIn     = transaction.HISTORY.filter((TRANSACT) => TRANSACT.addressIn  === publicKey);
     const   temporaryOut    = transaction.HISTORY.filter((TRANSACT) => TRANSACT.addressOut === publicKey);
-    waitIn  = temporaryIn.map((TRANSACT) => TRANSACT.amount).reduce((a, b) => parseInt(a) + parseInt(b), 0);
-    waitOut = temporaryOut.map((TRANSACT) => TRANSACT.amount).reduce((a, b) => parseInt(a) + parseInt(b), 0);
+    waitIn  = temporaryIn.map((TRANSACT) => TRANSACT.amount).reduce((a, b) => parseFloat(a) + parseFloat(b), 0);
+    waitOut = temporaryOut.map((TRANSACT) => TRANSACT.amount).reduce((a, b) => parseFloat(a) + parseFloat(b), 0);
 
     const   temporary       = wait;
     wait.IN  =   temporary.IN.concat(temporaryIn);
     wait.OUT =   temporary.OUT.concat(temporaryOut);
 
     responce = {
-        In:             walletIn,        
-        InWait:         waitIn,
-        Out:            walletOut,  
-        OutWait:        waitOut,
-        Balance:        walletIn - walletOut,
-        WaitBalance:    waitIn - waitOut,
+        In:             await decimalPointRound(walletIn),        
+        InWait:         await decimalPointRound(waitIn),
+        Out:            await decimalPointRound(walletOut),  
+        OutWait:        await decimalPointRound(waitOut),
+        Balance:        await decimalPointRound(walletIn - walletOut),
+        WaitBalance:    await decimalPointRound(waitIn - waitOut),
         History:        history,
         Wait:           wait
     }
     return responce;
+}
+
+async function  decimalPointRound(num){
+    return Math.round(num * decimalPoint) / decimalPoint;;
 }
 //지갑 조회
