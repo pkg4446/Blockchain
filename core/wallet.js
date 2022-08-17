@@ -23,6 +23,7 @@ Wallet.prototype.getPrivate = function(){
     } catch (error) {   
         console.error(`${privateKeyFile} 파일이 없어 ${privateKeyFile} 파일을 생성합니다.`);
         this.initWallet();
+        return this.getPrivate();
     }    
 }
 
