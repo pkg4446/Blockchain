@@ -12,49 +12,52 @@ function Blockchain(){
 
 //제네시스 블럭
 Blockchain.prototype.createGenesisBlock = function(){
-    if(!this.getLastBlock()){ 
+    if(!getLastBlock(this.block)){ 
         const genesisBlock = {
             index:          0,
             timestamp:      Date.now(),        
             nonce:          100,
             previousHash:   0,
-            hash:           0,
+            hash:           null,
             transactions:   []
         };        
-        genesisBlock.hash = this.hashBlock(genesisBlock);
+        genesisBlock.hash = hashBlock(genesisBlock);
         this.block.push(genesisBlock);
         record.addBlock(genesisBlock);
-        const firstBlock = this.getLastBlock();
+        const firstBlock = getLastBlock(this.block);
         const secondBlock = {
             index:          firstBlock.index+1,
             timestamp:      Date.now(),
-            nonce:          this.proofOfWork(firstBlock),
+            nonce:          proofOfWork(firstBlock,this.block),
             previousHash:   firstBlock.hash,
-            hash:           0,
+            hash:           null,
             transactions:   []
         };       
-        secondBlock.hash = this.hashBlock(secondBlock);
+        secondBlock.hash = hashBlock(secondBlock);
         this.block.push(secondBlock);
         record.addBlock(secondBlock);
     }
 }
 
 //블록체인 프로토 타입 함수 정의
-Blockchain.prototype.createNewBlock = function(DATA){
+Blockchain.prototype.createNewBlock = function(){
     //새 블록 객체
     const lastBlock = this.block[this.block.length-1];
     const newBlock = {
         index:              lastBlock.index+1,
         timestamp:          Date.now(),        
-        nonce:              this.proofOfWork(lastBlock),
+        nonce:              proofOfWork(lastBlock,this.block),
         previousHash:       lastBlock.hash,
-        hash:               0,
+        hash:               null,
         transactions:       this.pendingTransaction
     };
-    newBlock.hash   = this.hashBlock(newBlock);
+
+    record.hashKey(newBlock);
+
+    newBlock.hash   = hashBlock(newBlock);
     //다음 거래를 위한 거래내역 배열 비워주고 새로운 블록을 block 배열에 추가 
     this.pendingTransaction = [];
-    if(this.isValidNewBlock()){
+    if(isValidNewBlock(this.block)){
         this.block.push(newBlock);
         if(this.block.length>bolckSave){
             this.block = record.newFile(this.block[bolckSave-1],newBlock);
@@ -67,8 +70,9 @@ Blockchain.prototype.createNewBlock = function(DATA){
 }
 
 //마지막 블록 얻기
-Blockchain.prototype.getLastBlock = function(){
-    const lastBlock = this.block[this.block.length - 1];
+getLastBlock = function(block){
+    const blockNumber = block.length;
+    const lastBlock = block[blockNumber - 1];
     return lastBlock;
 }
 
@@ -82,8 +86,8 @@ Blockchain.prototype.createNewTransaction = function(DATA){
 }
 
 //해쉬 값 리턴 함수
-Blockchain.prototype.hashBlock = function(DATA){
-    return Encryption.hashBlock(DATA);
+function hashBlock (DATA){
+    return Encryption.hashBlock(JSON.stringify(DATA));
 }
 
 //난이도 조절용 객체, 난이도 조절에 사용할 블럭 갯수 단위, 평균 블럭 생성 속도, 블럭생성 난이도
@@ -93,9 +97,9 @@ const  Generation = {
     level:              1
 }
 //pow 작업 함수 - 이전블록의 해쉬, 현재 블록 데이터와 nonce 값을 사용한다.
-Blockchain.prototype.proofOfWork = function(DATA){
+function proofOfWork (DATA,block){
     DATA.nonce  = 0;
-    let hash    = this.hashBlock(DATA);
+    let hash    = hashBlock(DATA);
     let check   = "";
 
     //그냥 발행 할 경우 난이도 level = 1
@@ -104,18 +108,19 @@ Blockchain.prototype.proofOfWork = function(DATA){
     for(let strCheck = 0; strCheck < Generation.level; strCheck++){check += "0"}
     while(hash.substring(0,Generation.level) != check){
         DATA.nonce++;
-        hash = this.hashBlock(DATA)
+        hash = hashBlock(DATA)
     } 
     //난이도 조절 함수
-    difficult(this);
+    difficult(block);
     return DATA.nonce;
 }
 
 //난이도 조절 함수
-function difficult(blockChain){       
-    if(blockChain.getLastBlock().index % Generation.adjustmentBlock == 0 && blockChain.block.length > Generation.adjustmentBlock + 1){           
-        const blockInterver =   blockChain.getLastBlock().timestamp - 
-                                blockChain.block[blockChain.getLastBlock().index-Generation.adjustmentBlock].timestamp;
+function difficult(block){       
+    const lastBlock = getLastBlock(block);
+    if(lastBlock.index % Generation.adjustmentBlock == 0 && block.length > Generation.adjustmentBlock + 1){           
+        const blockInterver =   lastBlock.timestamp - 
+                                block[lastBlock.index-Generation.adjustmentBlock].timestamp;
         if(blockInterver/Generation.adjustmentBlock < Generation.interval/2){
             Generation.level++;
         }else if(blockInterver/Generation.adjustmentBlock > Generation.interval*2){
@@ -125,26 +130,33 @@ function difficult(blockChain){
 }
 
 //무결성 검증
-Blockchain.prototype.isValidNewBlock = function(){
-    if(this.getLastBlock()['index']>0){
-        console.log(this.block.length,this.getLastBlock()['index'])
-        console.log(this.block)
-        const newBlock      = this.block[this.block.length-1];
-        const previousBlock = this.block[this.block.length-2];
-        const inspection    = {
-            index:          previousBlock.index,
-            timestamp:      previousBlock.timestamp,
-            nonce:          previousBlock.nonce,
-            previousHash:   previousBlock.previousHash,
-            hash:           0,
-            transactions:   previousBlock.transactions
-        }    
+function isValidNewBlock(block){
+    const lastBlock = getLastBlock(block);
+    if(lastBlock.index>1){
+        const inspection1    = {
+            index:          block[block.length-2].index,
+            timestamp:      block[block.length-2].timestamp,
+            nonce:          block[block.length-2].nonce,
+            previousHash:   block[block.length-2].previousHash,
+            hash:           null,
+            transactions:   block[block.length-2].transactions
+        }   
+        const inspection2    = {
+            index:          block[block.length-1].index,
+            timestamp:      block[block.length-1].timestamp,
+            nonce:          block[block.length-2].nonce,
+            previousHash:   block[block.length-1].previousHash,
+            hash:           null,
+            transactions:   block[block.length-1].transactions
+        }  
+        console.log(inspection1.index,inspection1.timestamp,inspection1.nonce)
+        console.log(inspection2.index,inspection2.timestamp,inspection2.nonce)
         console.log("test-----------------------------------------");        
-        console.log("inspection     :",this.hashBlock(inspection));
-        console.log("previousBlock  :",previousBlock.previousHash);
-        console.log("previousBlock  :",previousBlock.hash);
-        console.log("newBlock       :",newBlock.previousHash);
-        console.log("newBlock       :",newBlock.hash);
+        console.log("inspection1:",hashBlock(inspection1));    
+        console.log("inspection2:",hashBlock(inspection2));
+        console.log(block[block.length-2].index,"Block  H :",block[block.length-2].hash);
+        console.log(block[block.length-1].index,"Block PH :",block[block.length-1].previousHash);
+        console.log(block[block.length-1].index,"Block  H :",block[block.length-1].hash);
         console.log("---------------------------------------------");
     //console.log("inspection",inspection);
     /*

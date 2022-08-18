@@ -78,18 +78,8 @@ module.exports = {
     newBlock:   async function(){        
         if(transaction.HISTORY.length){  
             Coin.createNewTransaction(transaction.HISTORY);
-            const lastBlock = Coin.getLastBlock();
-            const newBlock  = {
-                index:          lastBlock.index+1,
-                timestamp:      Date.now(),
-                nonce:          Coin.proofOfWork(lastBlock),
-                previousHash:   lastBlock.hash,
-                hash:           0,  
-                transactions:   Coin.pendingTransaction,
-            }; 
             transaction.HISTORY = [];
-            newBlock.hash   = Coin.hashBlock(newBlock);
-            Coin.createNewBlock(newBlock);
+            Coin.createNewBlock();
             return true;
         }
         else{

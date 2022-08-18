@@ -72,4 +72,17 @@ module.exports = {
         fs.writeFileSync(blockLocation+blockFile, genesis);
         console.log('new record created');
     },
+
+    hashKey:   function(DATA){
+        const fileName = "hashKey.txt";
+        if (fs.existsSync(blockForder+fileName)) {
+            //fs.appendFileSync(blockForder+fileName, JSON.stringify(DATA) + ",\n"); 
+            fs.appendFileSync(blockForder+fileName, `-index: ${DATA.index}  -timestamp: ${DATA.timestamp}  -nonce: ${DATA.nonce}`+ ",\n");        
+            console.log('hashKey saved!');
+            return;
+        }else{
+            fs.writeFileSync(blockForder+fileName, "");
+            console.log('new hashKey created');
+        }
+    },
 }
