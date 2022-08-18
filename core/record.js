@@ -26,9 +26,18 @@ module.exports = {
             fs.mkdirSync(blockBackUp);
         }
         try {
-            const dir = fs.readdirSync(blockLocation);
+            const dir = fs.readdirSync(blockLocation);            
             const buffer = fs.readFileSync(blockLocation+`blockchain_${dir.length-1}.dat`, 'utf8');
-            return buffer.toString();
+            let responce = eval("["+buffer+"]");
+            if(responce.length==1 && dir.length>1)
+            {
+                const temporary = fs.readFileSync(blockLocation+`blockchain_${dir.length-2}.dat`, 'utf8');
+                responce = eval("["+temporary+"]");
+                responce = JSON.stringify(responce[responce.length-1]) + ',' + buffer;
+            }else{
+                responce = buffer;
+            }
+            return responce.toString();
         } catch (error) {   
             const dir = fs.readdirSync(blockLocation);
             for(file of dir){

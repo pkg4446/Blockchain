@@ -1,6 +1,6 @@
 const   record      = require('./record');
 const   Encryption  = require('./encryption');
-const   bolckSave   = 145;
+const   bolckSave   = 5;//145;
 
 //블록체인 데이터 구조.
 function Blockchain(){
@@ -14,34 +14,44 @@ function Blockchain(){
 Blockchain.prototype.createGenesisBlock = function(){
     if(!this.getLastBlock()){ 
         const genesisBlock = {
-            index:              0,
-            timestamp:          Date.now(),        
-            nonce:              100,
-            previousHash:       "SmartHive",
-            hash:               "SmartHive",
-            transactions:       []
+            index:          0,
+            timestamp:      Date.now(),        
+            nonce:          100,
+            previousHash:   0,
+            hash:           0,
+            transactions:   []
         };        
-        genesisBlock.hash = this.hashBlock(genesisBlock);
-        record.addBlock(genesisBlock);
-        genesisBlock.index++;        
-        genesisBlock.previousHash = genesisBlock.hash;
         genesisBlock.hash = this.hashBlock(genesisBlock);
         this.block.push(genesisBlock);
         record.addBlock(genesisBlock);
+        const firstBlock = this.getLastBlock();
+        const secondBlock = {
+            index:          firstBlock.index+1,
+            timestamp:      Date.now(),
+            nonce:          this.proofOfWork(firstBlock),
+            previousHash:   firstBlock.hash,
+            hash:           0,
+            transactions:   []
+        };       
+        secondBlock.hash = this.hashBlock(secondBlock);
+        this.block.push(secondBlock);
+        record.addBlock(secondBlock);
     }
 }
 
 //블록체인 프로토 타입 함수 정의
 Blockchain.prototype.createNewBlock = function(DATA){
     //새 블록 객체
+    const lastBlock = this.block[this.block.length-1];
     const newBlock = {
-        index:              this.block[this.block.length-1].index+1,
+        index:              lastBlock.index+1,
         timestamp:          Date.now(),        
-        nonce:              DATA.nonce,
-        previousHash:       DATA.previousHash,
-        hash:               DATA.hash,
+        nonce:              this.proofOfWork(lastBlock),
+        previousHash:       lastBlock.hash,
+        hash:               0,
         transactions:       this.pendingTransaction
     };
+    newBlock.hash   = this.hashBlock(newBlock);
     //다음 거래를 위한 거래내역 배열 비워주고 새로운 블록을 block 배열에 추가 
     this.pendingTransaction = [];
     if(this.isValidNewBlock()){
@@ -84,7 +94,7 @@ const  Generation = {
 }
 //pow 작업 함수 - 이전블록의 해쉬, 현재 블록 데이터와 nonce 값을 사용한다.
 Blockchain.prototype.proofOfWork = function(DATA){
-    DATA.nonce   = 0;
+    DATA.nonce  = 0;
     let hash    = this.hashBlock(DATA);
     let check   = "";
 
@@ -116,29 +126,41 @@ function difficult(blockChain){
 
 //무결성 검증
 Blockchain.prototype.isValidNewBlock = function(){
-    if(this.getLastBlock()>1){
-        const newBlock      = this.block[this.getLastBlock()['index']-1];
-        const previousBlock = this.block[this.getLastBlock()['index']-2];
+    if(this.getLastBlock()['index']>0){
+        console.log(this.block.length,this.getLastBlock()['index'])
+        console.log(this.block)
+        const newBlock      = this.block[this.block.length-1];
+        const previousBlock = this.block[this.block.length-2];
         const inspection    = {
             index:          previousBlock.index,
             timestamp:      previousBlock.timestamp,
-            nonce:          newBlock.nonce,
+            nonce:          previousBlock.nonce,
             previousHash:   previousBlock.previousHash,
-            hash:           newBlock.previousHash,
-            transactions:   newBlock.transactions
+            hash:           0,
+            transactions:   previousBlock.transactions
         }    
-        
+        console.log("test-----------------------------------------");        
+        console.log("inspection     :",this.hashBlock(inspection));
+        console.log("previousBlock  :",previousBlock.previousHash);
+        console.log("previousBlock  :",previousBlock.hash);
+        console.log("newBlock       :",newBlock.previousHash);
+        console.log("newBlock       :",newBlock.hash);
+        console.log("---------------------------------------------");
     //console.log("inspection",inspection);
+    /*
         if (previousBlock.index + 1 !== newBlock.index) {
             console.log('invalid index', previousBlock.index, newBlock.index);
             return false;
-        } else if (previousBlock.hash !== newBlock.previousHash) {
+        }
+        if (previousBlock.hash !== newBlock.previousHash) {
             console.log('invalid previoushash', previousBlock.hash, newBlock.previousHash);
             return false;
-        } else if (this.hashBlock(inspection) !== newBlock.hash && inspection.index !== 1 ) {
+        }
+        if (this.hashBlock(inspection) !== newBlock.hash && inspection.index !== 1 ) {
             console.log('invalid previoushash', this.hashBlock(inspection), newBlock.hash);
             return false;
         }
+        */
     }
     return true;
 };

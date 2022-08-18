@@ -77,17 +77,18 @@ module.exports = {
     },
     newBlock:   async function(){        
         if(transaction.HISTORY.length){  
-            const newBlock = {}; 
             Coin.createNewTransaction(transaction.HISTORY);
+            const lastBlock = Coin.getLastBlock();
+            const newBlock  = {
+                index:          lastBlock.index+1,
+                timestamp:      Date.now(),
+                nonce:          Coin.proofOfWork(lastBlock),
+                previousHash:   lastBlock.hash,
+                hash:           0,  
+                transactions:   Coin.pendingTransaction,
+            }; 
             transaction.HISTORY = [];
-            newBlock.index          = Coin.getLastBlock().index;
-            newBlock.timestamp      = Coin.getLastBlock().timestamp;
-            newBlock.transactions   = Coin.pendingTransaction;
-            newBlock.hash           = Coin.getLastBlock().hash;
-            //pow 작업
-            newBlock.nonce          = Coin.proofOfWork(newBlock);
-            newBlock.hash           = Coin.hashBlock(newBlock);
-            newBlock.previousHash   = Coin.getLastBlock().hash;
+            newBlock.hash   = Coin.hashBlock(newBlock);
             Coin.createNewBlock(newBlock);
             return true;
         }
