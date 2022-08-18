@@ -133,6 +133,8 @@ function difficult(block){
 function isValidNewBlock(block){
     const lastBlock = getLastBlock(block);
     if(lastBlock.index>1){
+        const newBlock      = this.block[this.block.length-1];
+        const previousBlock = this.block[this.block.length-2];
         const inspection1    = {
             index:          block[block.length-2].index,
             timestamp:      block[block.length-2].timestamp,
