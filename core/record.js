@@ -59,8 +59,6 @@ module.exports = {
         }        
         const dirBlock  = fs.readdirSync(blockLocation);   
         const dirBackUp = fs.readdirSync(blockStorage);        
-        console.log(dirBlock.length);
-        console.log(dirBackUp.length);
         if(dirBlock.length > (dirBackUp.length+1)){
             const fileName = `blockchain_${dirBackUp.length}.dat`;
             try {
