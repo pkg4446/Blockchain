@@ -6,7 +6,7 @@ const   Coin        = new Blockchain();
 const   transaction = new Transaction();
 
 const   decimalPoint= 100000000;
-const   feeRatio    = 1000;
+const   feeRatio    = 10000;
 ////테스트 코드
 //console.log(wallet);
 module.exports = {
