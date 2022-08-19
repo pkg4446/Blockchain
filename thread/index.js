@@ -1,10 +1,17 @@
-const { Worker, isMainThread, parentPort } = require('worker_threads');
+const { Worker} = require('worker_threads');
+const validate  = new Worker('./thread/validate.js');
+const store     = new Worker('./thread/store.js');
 
-if (isMainThread) { // 메인 스레드
-    const threads = new Set();
+let validationResult    = true;
+validate.on('message', message => {
+    validationResult    = message;
+});
 
-    threads.add(new Worker('./thread/validate.js'));
-    
- } else { // 워커스레드
-  
- }
+exports.test = function(creat){
+    try {
+        validate.postMessage(creat);
+    } catch (error) {
+        console.log(error);
+    }    
+    return validationResult;
+};

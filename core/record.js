@@ -48,6 +48,29 @@ module.exports = {
             this.initBlockChain();
         }    
     },
+
+    backUp: function(){
+        const blockStorage  = 'data/storage/';
+        try {
+            fs.readdirSync(blockStorage, 'utf8');
+        } catch (error) {   
+            console.error(`${blockStorage} 폴더가 없어 ${blockStorage} 폴더를 생성합니다.`);
+            fs.mkdirSync(blockStorage);
+        }        
+        const dirBlock  = fs.readdirSync(blockLocation);   
+        const dirBackUp = fs.readdirSync(blockStorage);        
+        console.log(dirBlock.length);
+        console.log(dirBackUp.length);
+        if(dirBlock.length > (dirBackUp.length+1)){
+            const fileName = `blockchain_${dirBackUp.length}.dat`;
+            try {
+                fs.copyFileSync(blockLocation+fileName,blockStorage+fileName);
+            } catch (error) {       
+                console.error("File name is wrong",dirBlock);
+            }    
+        }
+    },
+
     addBlock:   function(DATA){
         const dir = fs.readdirSync(blockLocation);        
         if (fs.existsSync(blockLocation+`blockchain_${dir.length-1}.dat`)) {
@@ -58,13 +81,15 @@ module.exports = {
             console.log('There is no savefile.');
         }
     },
+
     newFile:    function(BLOCK,DATA){
         let block = [BLOCK,DATA];        
         const dir = fs.readdirSync(blockLocation);
         fs.writeFileSync(blockLocation+`blockchain_${dir.length}.dat`, JSON.stringify(DATA) + ",\n");
         return block;
     },
-    initBlockChain: function(DATA){
+
+    initBlockChain: function(){
         if (fs.existsSync(blockLocation+blockFile)) {
             return;
         }
