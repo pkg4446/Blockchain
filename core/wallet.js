@@ -33,15 +33,15 @@ Wallet.prototype.initWallet = function(){
     }
     const newPrivateKey = encryption.generatePrivateKey();
     fs.writeFileSync(privateKeyLocation+privateKeyFile, newPrivateKey);
-    this.privateKey = newPrivateKey;
+    this.privateKey     = newPrivateKey;
     console.log('new wallet with private key created');
 }
 
 Wallet.prototype.makeWallet = async function(){    
     const newWallet = {
-        PrivateKey: encryption.generatePrivateKey(),
-        publicKey:  ''
-    }
+                        PrivateKey: encryption.generatePrivateKey(),
+                        publicKey:  ''
+                    }
     newWallet.publicKey = encryption.getPublic(newWallet.PrivateKey);
     return newWallet;
 }

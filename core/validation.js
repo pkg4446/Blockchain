@@ -13,45 +13,53 @@ module.exports = {
             fs.mkdirSync(errorLocationr);
         }
         try {
-            const dir   = fs.readdirSync(blockLocation);
-            console.log(dir);
-            let   preBlock = 0;
-            for(let fileNumber=0; fileNumber<dir.length ;fileNumber++){
-                const buffer = eval("["+fs.readFileSync(blockLocation+`blockchain_${fileNumber}.dat`, 'utf8').toString()+"]")
+            const dir           = fs.readdirSync(blockLocation);
+            let   preBlock      = 0;
+            for(let fileNumber  = 0; fileNumber<dir.length ;fileNumber++){
+                const buffer    = eval("["+fs.readFileSync(blockLocation+`blockchain_${fileNumber}.dat`, 'utf8').toString()+"]")
                 for(block of buffer){
-                    const inspection = {
-                        index:          block.index,
-                        timestamp:      block.timestamp,
-                        nonce:          block.nonce,
-                        previousHash:   block.previousHash,
-                        hash:           block.hash,    
-                        transactions:   block.transactions             
-                    }
+                    const inspection    = {
+                                            index:          block.index,
+                                            timestamp:      block.timestamp,
+                                            nonce:          block.nonce,
+                                            previousHash:   block.previousHash,
+                                            hash:           null,    
+                                            transactions:   block.transactions             
+                                        }
+                    
                     if(preBlock == 0){
                         preBlock = inspection;
-                    }else{
+                    }else{                        
                         const blockHash = Encryption.hashBlock(preBlock);   
-/*
-                        console.log("blockNumber    :",inspection.index);
-                        console.log("blockHash      :",blockHash);
-                        console.log("--------------------------------");                                                
-                        console.log("preBlock.hash          :",preBlock.hash);           
-                        console.log("preBlock.previousHash  :",preBlock.previousHash);
-                        console.log("inspection.hash        :",inspection.previousHash);
-                        console.log("inspection.previousHash:",inspection.hash,"\n\n");
-*/
-                        preBlock = inspection;
-                    }                    
+                        preBlock        = inspection;
+                        validate(inspection.index-1,blockHash,inspection.previousHash);
+                    }
                 }
-            }                        
-        } catch (error) {   
+            }
+        } catch (error) {
             console.log("File name is wrong.");
-        }    
+        }
     },
 }
 
-function validate(data){    
-    if(data.block){
-
+function validate(index,comparison,Reference){
+    const fileName = "isValiDate.dat";
+    if(comparison  !== Reference){
+        if (fs.existsSync(errorLocationr+fileName)) {
+            const temporary = fs.readFileSync(errorLocationr+fileName, 'utf8');
+            const tempDate  = eval("["+temporary+"]");
+            let   saveFlage = true;
+            for(let preSave of tempDate){
+                if(preSave.invalidBlocknumer == index)
+                saveFlage   = false;
+                console.log("중복!");
+            }
+            if(saveFlage)   fs.appendFileSync(errorLocationr+fileName, '{"invalidBlocknumer":' + index + "},\n");         
+        }else{
+            fs.writeFileSync(errorLocationr+fileName,  '{"invalidBlocknumer":' + index + "},\n"); 
+            
+        }
+        console.log('inValiDate saved!');
     }
+    return;
 }

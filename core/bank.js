@@ -15,14 +15,14 @@ module.exports = {
     },
 
     minting:    async function(coin){    
-        const cost      = Number(coin);    
+        const cost  = Number(coin);    
         if(cost) {
             const responce = await transaction.issuance(cost);
             return responce;
         }
     },
     burn:       async function(coin){
-        const cost      = Number(coin);
+        const cost  = Number(coin);
         if(cost){        
             const balance   = await BalanceCheck(transaction.bank());
             console.log("Bank","in:",balance.InWait,balance.In,"out:",balance.Out,balance.OutWait,"total:",balance.Balance,balance.WaitBalance);
@@ -50,7 +50,7 @@ module.exports = {
         }
     },
     Balance:    async function(publicKey){
-        const balance = await BalanceCheck(publicKey);
+        const balance   = await BalanceCheck(publicKey);
         return balance;
     },
     remittance: async function(wallet){
@@ -99,15 +99,14 @@ async function  BalanceCheck(publicKey){
     let     walletOut   = 0;    
     let     waitIn      = 0;
     let     waitOut     = 0;   
-    const   history = {
-        IN:[],
-        OUT:[],
-    }
-    const   wait = {
-        IN:[],
-        OUT:[],
-    }
-    
+    const   history     = {
+                            IN:[],
+                            OUT:[],
+                        }
+    const   wait        = {
+                            IN:[],
+                            OUT:[],
+                        }    
     for(file of dir){
         const buffer = fs.readFileSync(blockLocation+file, 'utf8');
         const block = eval("["+ buffer.toString()+"]");
@@ -131,19 +130,19 @@ async function  BalanceCheck(publicKey){
     waitOut = temporaryOut.map((TRANSACT) => TRANSACT.amount).reduce((a, b) => parseFloat(a) + parseFloat(b), 0);
 
     const   temporary       = wait;
-    wait.IN  =   temporary.IN.concat(temporaryIn);
-    wait.OUT =   temporary.OUT.concat(temporaryOut);
+    wait.IN     =   temporary.IN.concat(temporaryIn);
+    wait.OUT    =   temporary.OUT.concat(temporaryOut);
 
-    responce = {
-        In:             await decimalPointRound(walletIn),        
-        InWait:         await decimalPointRound(waitIn),
-        Out:            await decimalPointRound(walletOut),  
-        OutWait:        await decimalPointRound(waitOut),
-        Balance:        await decimalPointRound(walletIn - walletOut),
-        WaitBalance:    await decimalPointRound(waitIn - waitOut),
-        History:        history,
-        Wait:           wait
-    }
+    responce    = {
+                    In:             await decimalPointRound(walletIn),        
+                    InWait:         await decimalPointRound(waitIn),
+                    Out:            await decimalPointRound(walletOut),  
+                    OutWait:        await decimalPointRound(waitOut),
+                    Balance:        await decimalPointRound(walletIn - walletOut),
+                    WaitBalance:    await decimalPointRound(waitIn - waitOut),
+                    History:        history,
+                    Wait:           wait
+                }
     return responce;
 }
 

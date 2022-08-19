@@ -74,10 +74,9 @@ module.exports = {
     },
 
     hashKey:   function(DATA){
-        const fileName = "hashKey.txt";
+        const fileName = "hashKey.dat";
         if (fs.existsSync(blockForder+fileName)) {
-            //fs.appendFileSync(blockForder+fileName, JSON.stringify(DATA) + ",\n"); 
-            fs.appendFileSync(blockForder+fileName, `-index: ${DATA.index}  -timestamp: ${DATA.timestamp}  -nonce: ${DATA.nonce}`+ ",\n");        
+            fs.appendFileSync(blockForder+fileName, JSON.stringify(DATA) + ",\n"); 
             console.log('hashKey saved!');
             return;
         }else{

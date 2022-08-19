@@ -11,7 +11,7 @@ module.exports = {
     },
     
     getPublic       : function(privateKey){
-        const key = ec.keyFromPrivate(privateKey, 'hex');
+        const key   = ec.keyFromPrivate(privateKey, 'hex');
         return key.getPublic().encode('hex');
     },
 

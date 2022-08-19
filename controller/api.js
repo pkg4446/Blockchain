@@ -1,7 +1,7 @@
 const {bank,wallet} = require('../core');
 const web           = require('./web');
 
-const http        = require('http');
+const http          = require('http');
 
 const app   = http.createServer(async function(request,response){
     let webpage;
