@@ -8,19 +8,19 @@ const   blockFile     = `blockchain_0.dat`;
 module.exports = {
     getBlock:   function(){
         try {
-            const buffer = fs.readdirSync(blockForder, 'utf8');
+            fs.readdirSync(blockForder, 'utf8');
         } catch (error) {   
             console.error(`${blockForder} 폴더가 없어 ${blockForder} 폴더를 생성합니다.`);
             fs.mkdirSync(blockForder);
         }
         try {
-            const buffer = fs.readdirSync(blockLocation, 'utf8');
+            fs.readdirSync(blockLocation, 'utf8');
         } catch (error) {   
             console.error(`${blockLocation} 폴더가 없어 ${blockLocation} 폴더를 생성합니다.`);
             fs.mkdirSync(blockLocation);
         }
         try {
-            const buffer = fs.readdirSync(blockBackUp, 'utf8');
+            fs.readdirSync(blockBackUp, 'utf8');
         } catch (error) {   
             console.error(`${blockBackUp} 폴더가 없어 ${blockBackUp} 폴더를 생성합니다.`);
             fs.mkdirSync(blockBackUp);

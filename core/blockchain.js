@@ -69,13 +69,6 @@ Blockchain.prototype.createNewBlock = function(){
     }
 }
 
-//마지막 블록 얻기
-getLastBlock = function(block){
-    const blockNumber   = block.length;
-    const lastBlock     = block[blockNumber - 1];
-    return lastBlock;
-}
-
 //새로운 트랜젝션(거래)가 발생했을 때 작동되는 함수
 //인자값으로, 총액수, 보내는사람, 받는사람이 들어간다.
 Blockchain.prototype.createNewTransaction = function(DATA){
@@ -83,6 +76,13 @@ Blockchain.prototype.createNewTransaction = function(DATA){
     this.pendingTransaction = DATA;
     //마지막 블록의 index 에서 + 1
     return this.pendingTransaction;
+}
+
+//마지막 블록 얻기
+getLastBlock = function(block){
+    const blockNumber   = block.length;
+    const lastBlock     = block[blockNumber - 1];
+    return lastBlock;
 }
 
 //난이도 조절용 객체, 난이도 조절에 사용할 블럭 갯수 단위, 평균 블럭 생성 속도, 블럭생성 난이도
