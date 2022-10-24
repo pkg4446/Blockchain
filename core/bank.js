@@ -16,14 +16,14 @@ module.exports = {
 
     minting:    async function(coin){    
         const cost  = Number(coin);    
-        if(cost) {
+        if(cost>0) {
             const responce = await transaction.issuance(cost);
             return responce;
         }
     },
     burn:       async function(coin){
         const cost  = Number(coin);
-        if(cost){        
+        if(cost>0){        
             const balance   = await BalanceCheck(transaction.bank());
             console.log("Bank","in:",balance.InWait,balance.In,"out:",balance.Out,balance.OutWait,"total:",balance.Balance,balance.WaitBalance);
             if(balance.Balance>=cost && (balance.Balance+balance.WaitBalance)>=cost){
