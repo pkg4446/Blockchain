@@ -2,9 +2,9 @@
   "name": "blockchain",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "coin.js",
   "scripts": {
-    "start": "nodemon app"
+    "start": "nodemon coin"
   },
   "author": "",
   "license": "ISC",
