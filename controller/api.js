@@ -55,7 +55,7 @@ async function POST(response,data){
     };
     switch (TYPE) {
         case 'minting':   
-            if(AMOUNT){
+            if(AMOUNT>0){
                 res.data = await bank.minting(AMOUNT);
             }else{
                 res.result  = false;
@@ -63,7 +63,7 @@ async function POST(response,data){
             }                 
             break;
         case 'burn':
-            if(AMOUNT){
+            if(AMOUNT>0){
                 res.data = await bank.burn(AMOUNT);
             }else{
                 res.result  = false;
@@ -76,7 +76,7 @@ async function POST(response,data){
                 res.data    = "Wallet is wrong."; 
                 break;
             }
-            if(AMOUNT){
+            if(AMOUNT>0){
                 res.data = await bank.remittance(TransactionDATA);
             }else{
                 res.result  = false;
