@@ -10,7 +10,11 @@ function Wallet(){
 }
 
 Wallet.prototype.getPrivate = function(){
-
+    try {
+        fs.readdirSync("data/", 'utf8');
+    } catch (error) {   
+        fs.mkdirSync("data/");
+    }
     try {
         fs.readdirSync(privateKeyLocation, 'utf8');
     } catch (error) {   
